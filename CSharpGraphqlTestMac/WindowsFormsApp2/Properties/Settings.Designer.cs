@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CsharpSyncHTTP.Properties {
+namespace MacMaster.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

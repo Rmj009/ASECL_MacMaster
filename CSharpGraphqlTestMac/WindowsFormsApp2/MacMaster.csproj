@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{33AF3561-D1D3-4609-A6A1-7A68A36210C7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CsharpSyncHTTP</RootNamespace>
-    <AssemblyName>CsharpSyncHTTP</AssemblyName>
+    <RootNamespace>MacMaster</RootNamespace>
+    <AssemblyName>MacMaster</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
