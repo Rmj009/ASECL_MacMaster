@@ -464,7 +464,7 @@ namespace WindowsFormsApp2
             Console.WriteLine($"Real Total Spend {sw.ElapsedMilliseconds}ms");
         }
 
-        public async Task<GraphQL.GraphQLResponse<SyncPOResponse>> Real_SyncPo(string lotCode, string po, int count)
+        public async Task<GraphQL.GraphQLResponse<SyncPOResponse>> Real_SyncPo(string lotCode, string po, int count)    //TO MONITOR
         {
             string gqlstr = @"mutation($input: SyncPoInput!)
                             {
@@ -638,15 +638,21 @@ namespace WindowsFormsApp2
                     };
 
                     var graphQLResponse = await graphQLClient.SendQueryAsync<T>(request);
+                    //-----------------------------------------------------------------
+                    //-----------------------------------------------------------------
+                    //-----------------------------------------------------------------
+                    //-----------------------Button1 只跑到此--------------------------
+                    //-----------------------------------------------------------------
+                    //-----------------------------------------------------------------
+                    //-----------------------------------------------------------------
                     if (graphQLResponse.Errors != null && graphQLResponse.Errors.Length > 0)
                     {
                         StringBuilder sb = new StringBuilder();
-                        foreach (var error in graphQLResponse.Errors)
+                        foreach (GraphQLError error in graphQLResponse.Errors)
                         {
                             sb.Append(error.Message + " ~ \r\n");
                         }
                         throw new Exception("Response Error : " + sb.ToString());
-                        //throw new Exception("Response Error : " + sb.ToString());
                     }
 
                     if (graphQLResponse.Data == null)
