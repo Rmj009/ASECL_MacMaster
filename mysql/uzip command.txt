@@ -1,0 +1,5 @@
+uncompress gz:
+tar zxvf mysql-db-data.tar.gz
+
+compress gz:
+tar zcvf mysql-db-data.tar.gz ./mysql-db-data
