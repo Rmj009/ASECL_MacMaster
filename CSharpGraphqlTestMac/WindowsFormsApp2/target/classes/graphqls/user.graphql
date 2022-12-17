@@ -1,0 +1,16 @@
+
+type User{
+    ID: Int!
+    EmployeeID: String!
+    RealName: String!
+    NickName: String!
+    EMail: String!
+    Phone: String!
+#    Role: Role!
+#    AgreeUser: User
+#    DisagreeUser: User
+#    IsActived: Int!
+#    DisagreeReason: String
+#    LastActivedTime: Timestamp
+#    LastDisagreeActiveTime: Timestamp
+}

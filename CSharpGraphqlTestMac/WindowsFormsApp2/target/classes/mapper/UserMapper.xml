@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.UserMapper">
+
+    <resultMap id="RoleResultMap" type="Role" >
+        <id property="ID" column="R_ID"/>
+        <result property="Name" column="R_name"/>
+        <result property="CreatedTime" column="R_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="AgreeUserRoleResultMap" type="Role" >
+        <id property="ID" column="AR_ID"/>
+        <result property="Name" column="AR_name"/>
+        <result property="CreatedTime" column="AR_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="DisAgreeUserRoleResultMap" type="Role" >
+        <id property="ID" column="DR_ID"/>
+        <result property="Name" column="DR_name"/>
+        <result property="CreatedTime" column="DR_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="AgreeUserResultMap" type="User">
+        <result property="ID" column="A_ID"/>
+        <result property="EmployeeID" column="A_EmployeeID"/>
+        <result property="RealName" column="A_RealName"/>
+        <result property="NickName" column="A_NickName"/>
+        <result property="EMail" column="A_EMail"/>
+        <result property="Phone" column="A_Phone"/>
+        <association property="Role" resultMap="AgreeUserRoleResultMap"/>
+    </resultMap>
+
+    <resultMap id="DisAgreeUserResultMap" type="User">
+        <result property="ID" column="D_ID"/>
+        <result property="EmployeeID" column="D_EmployeeID"/>
+        <result property="RealName" column="D_RealName"/>
+        <result property="NickName" column="D_NickName"/>
+        <result property="EMail" column="D_EMail"/>
+        <result property="Phone" column="D_Phone"/>
+        <association property="Role" resultMap="DisAgreeUserRoleResultMap"/>
+    </resultMap>
+
+    <resultMap id="UserResultMap" type="User">
+        <result property="ID" column="ID"/>
+        <result property="EmployeeID" column="EmployeeID"/>
+        <result property="RealName" column="RealName"/>
+        <result property="NickName" column="NickName"/>
+        <result property="EMail" column="EMail"/>
+        <result property="Phone" column="Phone"/>
+        <result property="Password" column="Password"/>
+        <result property="IsActived" column="IsActived"/>
+        <result property="DisagreeReason" column="DisagreeReason"/>
+        <result property="LastActivedTime" column="LastActivedTime"/>
+        <result property="LastDisagreeActiveTime" column="LastDisagreeActiveTime"/>
+        <association property="Role" resultMap="RoleResultMap"/>
+        <association property="AgreeUser" resultMap="AgreeUserResultMap"/>
+        <association property="DisagreeUser" resultMap="DisAgreeUserResultMap"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.User">
+        INSERT INTO user (EmployeeID, RealName, NickName, EMail, Phone, Password, IsActived, DisagreeReason, LastActivedTime, LastDisagreeActiveTime, Role_ID, AgreeUser_ID, DisagreeUser_ID)
+        SELECT
+        #{EmployeeID},
+        #{RealName},
+        #{NickName},
+        #{EMail},
+        #{Phone},
+        #{Password},
+        #{IsActived},
+        #{DisagreeReason},
+        #{LastActivedTime},
+        #{LastDisagreeActiveTime},
+        (SELECT ID FROM role WHERE Name=#{Role.Name}),
+        (SELECT ID FROM user WHERE EMail=#{AgreeUser.EMail}),
+        (SELECT ID FROM user WHERE EMail=#{DisagreeUser.EMail}) FROM DUAL
+        WHERE NOT EXISTS ( SELECT 1 FROM user WHERE EMail = #{EMail})
+    </insert>
+
+    <select id="getAll" resultMap="UserResultMap">
+        select
+        u.ID as ID,
+        u.EmployeeID as EmployeeID,
+        u.RealName as RealName,
+        u.NickName as NickName,
+        u.EMail as EMail,
+        u.Phone as Phone,
+        u.Password as Password,
+        u.IsActived as IsActived,
+        u.DisagreeReason as DisagreeReason,
+        u.LastActivedTime as LastActivedTime,
+        u.LastDisagreeActiveTime as LastDisagreeActiveTime,
+        r.ID as R_ID,
+	    r.Name as R_Name,
+	    r.CreatedTime as R_CreatedTime,
+        au.ID as A_ID,
+        au.EmployeeID as A_EmployeeID,
+        au.RealName as A_RealName,
+		au.NickName as A_NickName,
+        au.EMail as A_EMail,
+        au.Phone as A_Phone,
+        dau.ID as D_ID,
+        dau.EmployeeID as D_EmployeeID,
+        dau.RealName as D_RealName,
+        dau.NickName as D_NickName,
+        dau.EMail as D_EMail,
+        dau.Phone as D_Phone,
+        aR.ID as AR_ID,
+        aR.Name as AR_Name,
+        aR.CreatedTime as AR_CreatedTime,
+		dauR.ID as DR_ID,
+        dauR.Name as DR_Name,
+        dauR.CreatedTime as DR_CreatedTime
+        from user u left join role r ON r.ID=u.Role_ID
+        left join user au ON au.ID=u.AgreeUser_ID
+        left join user dau ON dau.ID=u.DisagreeUser_ID
+        left join role aR ON aR.ID=au.Role_ID
+        left join role dauR ON dauR.ID = dau.Role_ID
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from user
+    </select>
+
+    <select id="getCountByEmployeeID" resultType="int">
+        select count(*) from user where EmployeeID = #{emplayeeID}
+    </select>
+
+    <select id="getByNickName" resultMap="UserResultMap">
+        select
+        u.ID as ID,
+        u.EmployeeID as EmployeeID,
+        u.RealName as RealName,
+        u.NickName as NickName,
+        u.EMail as EMail,
+        u.Phone as Phone,
+        u.Password as Password,
+        u.IsActived as IsActived,
+        u.DisagreeReason as DisagreeReason,
+        u.LastActivedTime as LastActivedTime,
+        u.LastDisagreeActiveTime as LastDisagreeActiveTime,
+        r.ID as R_ID,
+	    r.Name as R_Name,
+	    r.CreatedTime as R_CreatedTime,
+        au.ID as A_ID,
+        au.EmployeeID as A_EmployeeID,
+        au.RealName as A_RealName,
+		au.NickName as A_NickName,
+        au.EMail as A_EMail,
+        au.Phone as A_Phone,
+        dau.ID as D_ID,
+        dau.EmployeeID as D_EmployeeID,
+        dau.RealName as D_RealName,
+        dau.NickName as D_NickName,
+        dau.EMail as D_EMail,
+        dau.Phone as D_Phone,
+        aR.ID as AR_ID,
+        aR.Name as AR_Name,
+        aR.CreatedTime as AR_CreatedTime,
+		dauR.ID as DR_ID,
+        dauR.Name as DR_Name,
+        dauR.CreatedTime as DR_CreatedTime
+        from user u left join role r ON r.ID=u.Role_ID
+        left join user au ON au.ID=u.AgreeUser_ID
+        left join user dau ON dau.ID=u.DisagreeUser_ID
+        left join role aR ON aR.ID = au.Role_ID
+        left join role dauR ON dauR.ID = dau.Role_ID
+        where u.NickName = #{nickName}
+    </select>
+
+    <select id="getByEMail" resultMap="UserResultMap">
+        select
+        u.ID as ID,
+        u.EmployeeID as EmployeeID,
+        u.RealName as RealName,
+        u.NickName as NickName,
+        u.EMail as EMail,
+        u.Phone as Phone,
+        u.Password as Password,
+        u.IsActived as IsActived,
+        u.DisagreeReason as DisagreeReason,
+        u.LastActivedTime as LastActivedTime,
+        u.LastDisagreeActiveTime as LastDisagreeActiveTime,
+        r.ID as R_ID,
+	    r.Name as R_Name,
+	    r.CreatedTime as R_CreatedTime,
+        au.ID as A_ID,
+        au.EmployeeID as A_EmployeeID,
+        au.RealName as A_RealName,
+		au.NickName as A_NickName,
+        au.EMail as A_EMail,
+        au.Phone as A_Phone,
+        dau.ID as D_ID,
+        dau.EmployeeID as D_EmployeeID,
+        dau.RealName as D_RealName,
+        dau.NickName as D_NickName,
+        dau.EMail as D_EMail,
+        dau.Phone as D_Phone,
+        aR.ID as AR_ID,
+        aR.Name as AR_Name,
+        aR.CreatedTime as AR_CreatedTime,
+		dauR.ID as DR_ID,
+        dauR.Name as DR_Name,
+        dauR.CreatedTime as DR_CreatedTime
+        from user u left join role r ON r.ID=u.Role_ID
+        left join user au ON au.ID=u.AgreeUser_ID
+        left join user dau ON dau.ID=u.DisagreeUser_ID
+        left join role aR ON aR.ID = au.Role_ID
+        left join role dauR ON dauR.ID = dau.Role_ID
+        where u.EMail = #{email}
+    </select>
+
+    <select id="getByEmployeeID" resultMap="UserResultMap">
+        select
+        u.ID as ID,
+        u.EmployeeID as EmployeeID,
+        u.RealName as RealName,
+        u.NickName as NickName,
+        u.EMail as EMail,
+        u.Phone as Phone,
+        u.Password as Password,
+        u.IsActived as IsActived,
+        u.DisagreeReason as DisagreeReason,
+        u.LastActivedTime as LastActivedTime,
+        u.LastDisagreeActiveTime as LastDisagreeActiveTime,
+        r.ID as R_ID,
+	    r.Name as R_Name,
+	    r.CreatedTime as R_CreatedTime
+        from user u inner join role r ON r.ID=u.Role_ID
+        where u.EmployeeID = #{emplayeeID}
+    </select>
+
+    <select id="getByPhone" resultMap="UserResultMap">
+        select
+        u.ID as ID,
+        u.EmployeeID as EmployeeID,
+        u.RealName as RealName,
+        u.NickName as NickName,
+        u.EMail as EMail,
+        u.Phone as Phone,
+        u.Password as Password,
+        u.IsActived as IsActived,
+        u.DisagreeReason as DisagreeReason,
+        u.LastActivedTime as LastActivedTime,
+        u.LastDisagreeActiveTime as LastDisagreeActiveTime,
+        r.ID as R_ID,
+	    r.Name as R_Name,
+	    r.CreatedTime as R_CreatedTime,
+        au.ID as A_ID,
+        au.EmployeeID as A_EmployeeID,
+        au.RealName as A_RealName,
+		au.NickName as A_NickName,
+        au.EMail as A_EMail,
+        au.Phone as A_Phone,
+        dau.ID as D_ID,
+        dau.EmployeeID as D_EmployeeID,
+        dau.RealName as D_RealName,
+        dau.NickName as D_NickName,
+        dau.EMail as D_EMail,
+        dau.Phone as D_Phone,
+        aR.ID as AR_ID,
+        aR.Name as AR_Name,
+        aR.CreatedTime as AR_CreatedTime,
+		dauR.ID as DR_ID,
+        dauR.Name as DR_Name,
+        dauR.CreatedTime as DR_CreatedTime
+        from user u left join role r ON r.ID=u.Role_ID
+        left join user au ON au.ID=u.AgreeUser_ID
+        left join user dau ON dau.ID=u.DisagreeUser_ID
+        left join role aR ON aR.ID = au.Role_ID
+        left join role dauR ON dauR.ID = dau.Role_ID
+        where u.Phone = #{phone}
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.User">
+        update user set
+        EmployeeID = (#{EmployeeID}) ,
+        RealName = (#{RealName}),
+        NickName = (#{NickName}),
+        EMail = (#{EMail}),
+        Phone = (#{Phone}),
+        Password = (#{Password}),
+        IsActived = (#{IsActived}),
+        DisagreeReason = (#{DisagreeReason}),
+        LastActivedTime = (#{LastActivedTime}),
+        LastDisagreeActiveTime = (#{LastDisagreeActiveTime}),
+        Role_ID = #{Role.ID},
+        AgreeUser_ID = #{AgreeUser.ID},
+        DisagreeUser_ID = #{DisagreeUser.ID}
+        where ID = (#{ID})
+    </update>
+
+    <delete id="deleteByID" >
+        delete from user where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByEMail" >
+        delete from user where EMail=(#{email})
+    </delete>
+
+    <delete id="deleteByEmployeeID" >
+        delete from user where EmployeeID=(#{emplayeeID})
+    </delete>
+
+    <delete id="deleteByPhone" >
+        delete from user where Phone=(#{phone})
+    </delete>
+
+</mapper>

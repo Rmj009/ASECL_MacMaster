@@ -1,0 +1,39 @@
+
+type Customer{
+    ID: Int!
+    Name: String!
+    Phone: String
+    Remark: String
+    TestConfigurations: [TestConfiguration]
+    CreatedOwner: User
+    CreatedTime: Timestamp
+}
+
+input CustomerQueryInput{
+    name: String
+    remark: String
+    phone: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+input CustomerCreationInput{
+    name: String!
+    remark: String
+    phone: String
+    ownerEmplayeeId: String!
+}
+
+input CustomerDeleteInput{
+    name: String!
+}
+
+input CustomerUpgradeInput{
+    originName: String!
+    name: String
+    remark: String
+    phone: String
+}

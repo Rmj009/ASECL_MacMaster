@@ -1,0 +1,5 @@
+input SyncPoInput{
+    po: String
+    lotcode: String
+    count: Int = -1
+}

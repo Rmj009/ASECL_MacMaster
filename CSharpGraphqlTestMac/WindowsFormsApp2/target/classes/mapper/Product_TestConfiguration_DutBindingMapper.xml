@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_TestConfiguration_DutBindingMapper">
+
+    <resultMap id="Product_TestConfiguration_BindingResultMap" type="Product_TestConfiguration_DutBinding">
+        <result property="ID" column="ID"/>
+        <association property="DutDevice_ID" resultMap="DutDeviceResult"/>
+        <association property="Product_TestConfiguration_ID" resultMap="Product_TestConfigurationResult"/>
+    </resultMap>
+
+    <resultMap id="DutDeviceResult" type="DutDevice">
+        <result property="ID" column="D_ID"/>
+        <result property="HostName" column="D_HostName"/>
+        <result property="LotCode" column="D_LotCode"/>
+        <result property="Remark" column="D_Remark"/>
+        <result property="Hander" column="D_Hander"/>
+        <result property="CreatedTime" column="D_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="Product_TestConfigurationResult" type="Product_TestConfiguration">
+        <result property="ID" column="T_ID"/>
+        <result property="Device" column="T_Device"/>
+        <result property="StartDate" column="T_StartDate"/>
+        <result property="CreatedTime" column="T_CreatedTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_TestConfiguration_DutBinding">
+        INSERT INTO Product_testconfiguration_dutbinding (DutDevice_ID,Product_TestConfiguration_ID)
+        SELECT
+        #{DutDevice_ID.ID},
+        #{Product_TestConfiguration_ID.ID}
+        FROM DUAL
+        WHERE NOT EXISTS (
+        SELECT 1 FROM Product_testconfiguration_dutbinding WHERE DutDevice_ID = #{DutDevice_ID.ID} and Product_TestConfiguration_ID = #{Product_TestConfiguration_ID.ID}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="Product_TestConfiguration_BindingResultMap">
+        select
+        tb.ID as ID,
+        tcf.ID as T_ID,
+        tcf.Device as T_Device,
+        tcf.StartDate as T_StartDate,
+        tcf.CreatedTime as T_CreatedTime,
+        d.ID as D_ID,
+        d.HostName as D_HostName,
+        d.LotCode as D_LotCode,
+        d.Remark as D_Remark,
+        d.Hander as D_Hander,
+        d.CreatedTime as D_CreatedTime
+        from Product_testconfiguration_dutbinding tb
+        left join Product_testconfiguration tcf ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join dutdevice d ON d.ID=tb.DutDevice_ID
+    </select>
+
+    <select id="checkDutDeviceStatusIsOccupy" resultType="int">
+        select count(*)
+        from Product_testconfiguration_dutbinding tb
+        left join Product_testconfiguration tcf ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join dutdevice d ON d.ID=tb.DutDevice_ID
+        left join TestConfigurationStatus tcfs ON tcfs.ID = tcf.Status_ID
+        where tb.DutDevice_ID = (#{dut_id}) and
+        (tcfs.Name = 'TestPrepare' or tcfs.Name = 'Testing')
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from Product_testconfiguration_dutbinding
+    </select>
+
+    <select id="getDutDevice_IDCount" resultType="int">
+        select count(DutDevice_ID) from Product_testconfiguration_dutbinding where DutDevice_ID=#{DutDevice_ID.ID}
+    </select>
+
+    <select id="getDutsByConfigurationId" resultMap="DutDeviceResult">
+        select
+        d.ID as D_ID,
+        d.HostName as D_HostName,
+        d.LotCode as D_LotCode,
+        d.Remark as D_Remark,
+        d.Hander as D_Hander,
+        d.CreatedTime as D_CreatedTime
+        from Product_testconfiguration_dutbinding tb
+        inner join Product_testconfiguration tcf ON tcf.ID=tb.Product_TestConfiguration_ID
+        inner join dutdevice d ON d.ID=tb.DutDevice_ID
+        where tcf.ID=#{testConfigurationId}
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_TestConfiguration_DutBinding">
+        update Product_testconfiguration_dutbinding set IsActive = (#{IsActive}) where Device = (#{Device})
+    </update>
+
+    <delete id="deleteByID" >
+        delete from Product_testconfiguration_dutbinding where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByDutId">
+        delete from Product_testconfiguration_dutbinding where DutDevice_ID=(#{dutId})
+    </delete>
+
+    <select id="getIDByDut_TFC" resultType="int">
+        select tb.ID from Product_testconfiguration_dutbinding tb
+        INNER join Product_testconfiguration t on t.ID=tb.Product_TestConfiguration_ID
+        INNER join dutdevice d on d.ID=tb.DutDevice_ID
+        where t.Device = (#{Device}) and d.Name = (#{name});
+    </select>
+</mapper>

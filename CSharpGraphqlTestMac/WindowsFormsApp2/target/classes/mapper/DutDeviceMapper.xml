@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--dutdevice是測試用電腦-->
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.DutDeviceMapper">
+
+    <resultMap id="CreatedOwnerResult" type="User">
+        <result property="ID" column="CO_ID"/>
+        <result property="EmployeeID" column="CO_EmployeeID"/>
+        <result property="RealName" column="CO_RealName"/>
+        <result property="NickName" column="CO_NickName"/>
+        <result property="EMail" column="CO_EMail"/>
+        <result property="Phone" column="CO_Phone"/>
+    </resultMap>
+
+    <resultMap id="DeviceResultMap" type="DutDevice">
+        <result property="ID" column="ID"/>
+        <result property="GroupPC" column="GroupPC"/>
+        <result property="HostName" column="HostName"/>
+        <result property="ProductDevice" column="ProductDevice"/>
+        <result property="Remark" column="Remark"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="CreatedOwner" resultMap="CreatedOwnerResult"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.DutDevice">
+        INSERT INTO dutdevice (HostName,Remark,GroupPC,ProductDevice,CreatedOwner_ID)
+        SELECT
+        #{HostName, jdbcType=VARCHAR},
+        #{Remark, jdbcType=VARCHAR},
+        #{GroupPC, jdbcType=VARCHAR},
+        #{ProductDevice, jdbcType=VARCHAR},
+        (SELECT ID FROM user WHERE ID=#{CreatedOwner.ID})
+        FROM DUAL WHERE NOT EXISTS (
+        SELECT 1 FROM dutdevice WHERE HostName =  #{HostName, jdbcType=VARCHAR} and ProductDevice = #{ProductDevice, jdbcType=VARCHAR}
+        and GroupPC =  #{GroupPC, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="DeviceResultMap">
+        select
+        d.ID as ID,
+        d.HostName as HostName,
+        d.ProductDevice as ProductDevice,
+        d.Remark as Remark,
+        d.GroupPC as GroupPC,
+        d.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone
+        from dutdevice d left join user u ON u.ID=d.CreatedOwner_ID
+    </select>
+
+    <select id="getByProductDeviceAndGroupPC" resultMap="DeviceResultMap">
+        select
+        d.ID as ID,
+        d.HostName as HostName,
+        d.ProductDevice as ProductDevice,
+        d.Remark as Remark,
+        d.GroupPC as GroupPC,
+        d.CreatedTime as CreatedTime
+        from dutdevice d
+        inner join testconfiguration_dutbinding db ON d.ID = db.DutDevice_ID
+        inner join TestConfiguration t ON t.ID = db.TestConfiguration_ID
+        WHERE d.ProductDevice = #{productDevice} and d.GroupPC = #{groupPC}
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from dutdevice
+    </select>
+
+    <select id="getCountByHostName" resultType="int">
+        select count(HostName) from dutdevice where HostName=(#{HostName})
+    </select>
+
+    <select id="getCountByProductDeviceAndGroupPC" resultType="int">
+        select count(LotCode) from dutdevice
+        where ProductDevice = #{productDevice} and GroupPC = #{groupPC}
+    </select>
+
+    <select id="getIDByProductDeviceAndGroupPC" resultType="int">
+        select ID from dutdevice where ProductDevice = #{productDevice} and GroupPC = #{groupPC}
+    </select>
+
+    <select id="getByHostName" resultMap="DeviceResultMap">
+        select
+        d.ID as ID,
+        d.HostName as HostName,
+        d.ProductDevice as ProductDevice,
+        d.Remark as Remark,
+        d.GroupPC as GroupPC,
+        d.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone
+        from dutdevice d left join user u ON u.ID=d.CreatedOwner_ID
+        where d.HostName = (#{HostName})
+    </select>
+
+    <select id="getByHostNameAndProductDeviceAndGroupPC" resultMap="DeviceResultMap">
+        select
+        d.ID as ID,
+        d.HostName as HostName,
+        d.ProductDevice as ProductDevice,
+        d.Remark as Remark,
+        d.GroupPC as GroupPC,
+        d.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone
+        from dutdevice d inner join user u ON u.ID=d.CreatedOwner_ID
+        where d.HostName = (#{HostName}) AND d.ProductDevice = (#{productDevice})
+        And d.GroupPC = (#{groupPC})
+    </select>
+
+<!--    <select id="getByDUTLotCode" resultMap="DeviceResultMap">-->
+<!--        select-->
+<!--        d.ID as ID,-->
+<!--        d.HostName as HostName,-->
+<!--        d.LotCode as LotCode,-->
+<!--        d.Remark as Remark,-->
+<!--        d.Hander as Hander,-->
+<!--        d.CreatedTime as CreatedTime,-->
+<!--        u.ID as CO_ID,-->
+<!--        u.EmployeeID as CO_EmployeeID,-->
+<!--        u.RealName as CO_RealName,-->
+<!--        u.NickName as CO_NickName,-->
+<!--        u.EMail as CO_EMail,-->
+<!--        u.Phone as CO_Phone-->
+<!--        from dutdevice d left join user u ON u.ID=d.CreatedOwner_ID-->
+<!--        where d.LotCode = (#{LotCode})-->
+<!--    </select>-->
+
+    <select id="get" resultMap="DeviceResultMap">
+        select
+        d.ID as ID,
+        d.HostName as HostName,
+        d.ProductDevice as ProductDevice,
+        d.Remark as Remark,
+        d.GroupPC as GroupPC,
+        d.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone
+        from dutdevice d left join user u ON u.ID=d.CreatedOwner_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+            <if test="productDevice != null and productDevice.length()>0">
+                AND d.ProductDevice = (#{productDevice})
+            </if>
+
+            <if test="hostname != null and hostname.length()>0">
+                AND d.HostName = (#{hostname})
+            </if>
+
+            <if test="groupPc != null and groupPc.length()>0">
+                AND d.GroupPC = (#{groupPc})
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND dab.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND maca.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND maca.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.DutDevice">
+        update dutdevice set Remark = (#{Remark}) where ID = (#{ID})
+    </update>
+
+    <delete id="deleteByID" >
+        delete from dutdevice where ID=(#{id})
+    </delete>
+
+    <update id="updateData">
+        update dutdevice
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.newProductDevice != null and input.newProductDevice.length() > 0">ProductDevice= #{input.newProductDevice},</if>
+            <if test="input.newHostName != null and input.newHostName.length() > 0">HostName= #{input.newHostName},</if>
+            <if test="input.newRemark != null and input.newRemark.length() > 0">Remark= #{newRemark},</if>
+            <if test="input.newGroupPc != null and input.newGroupPc.length() > 0">GroupPC= #{input.newGroupPc},</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+</mapper>

@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "http.maxTotal",
+      "type": "java.lang.String",
+      "description": "Description for http.maxTotal."
+    },
+    {
+      "name": "http.maxTotal",
+      "type": "java.lang.String",
+      "description": "Description for http.maxTotal."
+    }
+  ] }

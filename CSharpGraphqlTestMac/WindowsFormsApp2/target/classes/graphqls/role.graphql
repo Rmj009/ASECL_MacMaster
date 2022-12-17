@@ -1,0 +1,6 @@
+
+type Role{
+    ID: Int!
+    Name: String!
+    CreatedTime: Timestamp!
+}

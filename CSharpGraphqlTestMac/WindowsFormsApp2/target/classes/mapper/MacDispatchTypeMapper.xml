@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.MacDispatchTypeMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacDispatchType">
+        INSERT INTO MacDispatchType (Name)
+        SELECT #{Name, jdbcType=VARCHAR} FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM MacDispatchType WHERE Name = #{Name, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultType="com.asecl.simdc.org.simdc_project.db.entity.MacDispatchType">
+        select * from MacDispatchType
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from MacDispatchType
+    </select>
+
+    <select id="getCountByUsing" resultType="int">
+        select count(m.MacType_ID) from macaddress m
+        INNER join testconfiguration tc ON tc.ID = m.TestConfiguration_ID
+        INNER join macstatus ms ON ms.ID = m.Status_ID
+        where ms.Name = "Using" and tc.LotCode=#{productDevice} and m.Address=#{mac}
+    </select>
+
+    <select id="getCountByStatus_ID" resultType="int">
+        select count(m.MacType_ID) from macaddress m
+        INNER join testconfiguration tc ON tc.ID = m.TestConfiguration_ID
+        INNER join macstatus ms ON ms.ID = m.Status_ID
+        where ms.Name = #{status} and tc.LotCode=#{productDevice}
+    </select>
+
+<!--    <select id="getCountByMacStatus" resultType="int">-->
+<!--        select count(m.MacType_ID) from macaddress m-->
+<!--        INNER join testconfiguration tc ON tc.ID = m.TestConfiguration_ID-->
+<!--        INNER join macstatus ms ON ms.ID = m.Status_ID-->
+<!--        where ms.Name = "Using" and tc.LotCode=#{productDevice}-->
+<!--    </select>-->
+
+    <select id="getByName" resultType="com.asecl.simdc.org.simdc_project.db.entity.MacDispatchType">
+        select * from MacDispatchType where Name = (#{name}) LIMIT 1
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacDispatchType">
+        update MacDispatchType set Name = (#{Name}) where ID = (#{ID})
+    </update>
+
+    <update id="updateMacStatus" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacDispatchType">
+        update macaddress m
+        INNER join testconfiguration tc ON tc.ID = m.TestConfiguration_ID
+        INNER join macstatus ms ON ms.Name = (#{status})
+        set m.Status_ID = ms.ID
+        where tc.LotCode = (#{productDevice}) and m.Address = (#{mac});
+    </update>
+
+    <delete id="deleteByID" >
+        delete from MacDispatchType where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByName" >
+        delete from MacDispatchType where Name=(#{name})
+    </delete>
+</mapper>

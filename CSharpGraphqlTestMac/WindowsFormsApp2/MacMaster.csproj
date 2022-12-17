@@ -192,9 +192,63 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="target\classes\application.properties" />
+    <None Include="target\classes\graphqls\customer.graphql" />
+    <None Include="target\classes\graphqls\dutdevice.graphql" />
+    <None Include="target\classes\graphqls\firmware.graphql" />
+    <None Include="target\classes\graphqls\mac.graphql" />
+    <None Include="target\classes\graphqls\productDevice.graphql" />
+    <None Include="target\classes\graphqls\productFamily.graphql" />
+    <None Include="target\classes\graphqls\productmac.graphql" />
+    <None Include="target\classes\graphqls\protucttestconfiguration.graphql" />
+    <None Include="target\classes\graphqls\role.graphql" />
+    <None Include="target\classes\graphqls\schema.graphql" />
+    <None Include="target\classes\graphqls\software.graphql" />
+    <None Include="target\classes\graphqls\testconfiguration.graphql" />
+    <None Include="target\classes\graphqls\user.graphql" />
+    <None Include="target\classes\Meta-inf\additional-spring-configuration-metadata.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="target\classes\logback.xml" />
+    <Content Include="target\classes\mapper\CustomerMapper.xml" />
+    <Content Include="target\classes\mapper\DutDeviceMapper.xml" />
+    <Content Include="target\classes\mapper\FirmwareMapper.xml" />
+    <Content Include="target\classes\mapper\LoginMapper.xml" />
+    <Content Include="target\classes\mapper\LoginTypeMapper.xml" />
+    <Content Include="target\classes\mapper\MacAddressMapper.xml" />
+    <Content Include="target\classes\mapper\MacAddress_ResultBindingMapper.xml" />
+    <Content Include="target\classes\mapper\MacDispatchTypeMapper.xml" />
+    <Content Include="target\classes\mapper\MacLogMapper.xml" />
+    <Content Include="target\classes\mapper\MacStatusMapper.xml" />
+    <Content Include="target\classes\mapper\MacTypeMapper.xml" />
+    <Content Include="target\classes\mapper\MySQLMGRMapper.xml" />
+    <Content Include="target\classes\mapper\ProductDeviceMapper.xml" />
+    <Content Include="target\classes\mapper\ProductFamilyMapper.xml" />
+    <Content Include="target\classes\mapper\Product_MacAddressMapper.xml" />
+    <Content Include="target\classes\mapper\Product_MacAddress_ResultBindingMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TestConfigurationMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TestConfiguration_DutBindingMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TestConfiguration_SW_FW_BindingMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TestConfiguration_SW_FW_Binding_LogMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TrayMapper.xml" />
+    <Content Include="target\classes\mapper\Product_TrayPositionMapper.xml" />
+    <Content Include="target\classes\mapper\RegisterMapper.xml" />
+    <Content Include="target\classes\mapper\RegisterTypeMapper.xml" />
+    <Content Include="target\classes\mapper\RoleMapper.xml" />
+    <Content Include="target\classes\mapper\SoftwareMapper.xml" />
+    <Content Include="target\classes\mapper\TestConfigurationMapper.xml" />
+    <Content Include="target\classes\mapper\TestConfigurationStatusMapper.xml" />
+    <Content Include="target\classes\mapper\TestConfiguration_DutBindingMapper.xml" />
+    <Content Include="target\classes\mapper\TestConfiguration_SW_FW_BindingMapper.xml" />
+    <Content Include="target\classes\mapper\TestConfiguration_SW_FW_Binding_LogMapper.xml" />
+    <Content Include="target\classes\mapper\TestResultStatusMapper.xml" />
+    <Content Include="target\classes\mapper\TrayMapper.xml" />
+    <Content Include="target\classes\mapper\TrayPositionMapper.xml" />
+    <Content Include="target\classes\mapper\TrayTypeMapper.xml" />
+    <Content Include="target\classes\mapper\UserMapper.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,60 @@
+#type Query{
+#    products: [ProductModel!]
+#}
+#
+#type Mutation {
+#    CreateProduct(input: ProductInputModel!): ResponseModel!
+#}
+
+#type ProductModel{
+#    id: Int!
+#    name: String!
+#    remark: String!
+#}
+
+type DutDevice{
+    ID: Int!
+    HostName: String!
+    ProductDevice: String!
+    Remark: String
+    GroupPC: String
+    CreatedOwner: User
+    CreatedTime: Timestamp
+}
+
+input DutDeviceCreationInput{
+    hostname: String!
+    productDevice: String!
+    remark: String
+    groupPc: String
+    ownerEmplayeeId: String!
+}
+
+input DutDeviceUpgradeInput{
+    originHostName: String!
+    originProductDevice: String!
+    originGroupPc: String!
+    newHostName: String
+    newProductDevice: String
+    newRemark: String
+    newGroupPc: String
+}
+
+
+input DutDeviceQueryInput{
+    productDevice: String
+    hostname: String
+    groupPc: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+#
+
+input DutDeviceDeleteInput{
+    productDevice: String!
+    hostname: String!
+    groupPc: String!
+}

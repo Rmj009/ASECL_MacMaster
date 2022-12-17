@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_MacAddressMapper">
+
+    <resultMap id="MacTypeResultMap" type="MacType">
+        <result property="ID" column="MT_ID"/>
+        <result property="Name" column="MT_Name"/>
+        <result property="CreatedTime" column="MT_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="MacStatusResultMap" type="MacStatus">
+        <result property="ID" column="MS_ID"/>
+        <result property="Name" column="MS_Name"/>
+        <result property="CreatedTime" column="MS_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="TestConfigurationResultMap" type="Product_TestConfiguration">
+        <result property="ID" column="TC_ID"/>
+        <result property="LotCode" column="TC_LotCode"/>
+        <result property="CreatedTime" column="TC_CreatedTime"/>
+    </resultMap>
+
+
+    <resultMap id="TestUserResultMap" type="User" >
+        <id property="ID" column="Tu_ID"/>
+        <result property="EmployeeID" column="Tu_EmployeeID"/>
+    </resultMap>
+
+    <resultMap id="MacAddressResultMap" type="Product_MacAddress">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Address" column="Address"/>
+        <result property="AddressDecimal" column="AddressDecimal"/>
+        <result property="SipSerialName" column="SipSerialName"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <result property="SipLicense" column="SipLicense"/>
+        <association property="MacStatus" resultMap="MacStatusResultMap"/>
+        <association property="MacType" resultMap="MacTypeResultMap"/>
+        <association property="Product_TestConfiguration" resultMap="TestConfigurationResultMap"/>
+    </resultMap>
+
+    <resultMap id="MacAddressDispatchResultMap" type="Product_MacAddress">
+        <result property="ID" column="ID"/>
+        <result property="Address" column="Address"/>
+    </resultMap>
+
+    <insert id="fastBatchInsert" >
+        INSERT INTO product_macaddress
+        (LotCode, PO, Address, AddressDecimal, Status_ID, MacType_ID,
+        SipLicense)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.LotCode},#{item.PO},
+            #{item.Address},#{item.AddressDecimal},
+            #{item.MacStatus.ID}, #{item.MacType.ID},
+            #{item.SipLicense})
+        </foreach>
+    </insert>
+
+    <insert id="fastBatchInsertById" >
+        INSERT INTO product_macaddress
+        (LotCode, PO, Address, AddressDecimal, Status_ID, MacType_ID,
+        SipLicense)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.LotCode},#{item.PO},
+            #{item.Address},#{item.AddressDecimal},
+            #{macStatusId}, #{macTypeId},
+            #{item.SipLicense})
+        </foreach>
+    </insert>
+
+
+    <select id="getFirstMacByLotcodeAndPO" resultType="com.asecl.simdc.org.simdc_project.db.entity.Product_MacAddress">
+        SELECT ID, Address FROM product_macaddress
+        WHERE LotCode = (#{lotCode}) AND PO = (#{po}) Limit 1
+    </select>
+
+    <select id="getDispatchMacAddress" resultMap="MacAddressDispatchResultMap">
+        select
+        ID as ID,
+        Address as Address
+        from product_macaddress
+        WHERE product_TestConfiguration_ID is null
+        AND Status_ID = (#{macStatusID})
+        AND LotCode = (#{lotCode}) AND PO = (#{po})  limit #{totalCount}
+    </select>
+
+    <select id="getDispatchMacCountByPOAndLotCode" resultType="java.lang.Integer">
+        select
+        count(ID)
+        from product_macaddress
+        WHERE product_TestConfiguration_ID is null
+        AND LotCode = (#{lotCode}) AND PO = (#{po})
+    </select>
+
+
+
+    <update id="fastBatchUpdate">
+    INSERT INTO product_macaddress(ID, Name, Product_TestConfiguration_ID )
+    VALUES
+    <foreach collection="list" index="index" item="item" separator=",">
+        (#{item.ID},(#{item.Name}),(#{item.Product_TestConfiguration.ID}))
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+    ID = VALUES(ID),
+    Name = VALUES(Name),
+    Product_TestConfiguration_ID = VALUES(Product_TestConfiguration_ID)
+    </update>
+
+    <select id="getByTestConfigIdAndStatusId" resultMap="MacAddressResultMap">
+        select ID, Name, Address,SipLicense from product_macaddress WHERE Status_ID = (#{statusId}) AND Product_TestConfiguration_ID = (#{id}) Limit 1
+    </select>
+
+    <update id="updateTestUserIdAndStatusIdByAddress">
+        update product_macaddress
+        set
+        Status_ID = (#{statusId})
+        where Address = (#{address})
+    </update>
+
+    <update id="updateSipSerialNameByAddress">
+        update product_macaddress
+        set
+        SipSerialName = (#{sipserialname})
+        where Address = (#{address})
+    </update>
+
+    <update id="updateSipLicenseByAddress">
+        update product_macaddress
+        set
+        SipLicense = (#{license})
+        where Address = (#{address})
+    </update>
+
+
+
+    <select id="getMacAddressStatus" resultType="java.lang.String">
+         select ms.Name
+         from macstatus ms
+         left join product_macaddress m ON m.Status_ID=ms.ID
+         where m.address = (#{Address})
+    </select>
+
+
+
+    <select id="getByAddress" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.SipSerialName as SipSerialName,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime,
+        tc.ID as TC_ID,
+        tc.LotCode as TC_LotCode,
+        tc.CreatedTime as TC_CreatedTime,
+        mss.ID as MS_ID,
+        mss.Name as MS_Name,
+        mss.CreatedTime as MS_CreatedTime
+        from product_macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join Product_TestConfiguration tc ON tc.ID=maca.Product_TestConfiguration_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        Where maca.AddressDecimal = (#{Address})
+        and maca.MacType_ID = (#{macTypeID})
+        LIMIT 1
+    </select>
+
+    <update id="updateData">
+        update product_macaddress
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.newName != null and input.newName.length() > 0">Name= #{input.newName},</if>
+            <if test="input.newStatusID >= 0">Status_ID= #{input.newStatusID},</if>
+            <if test="testUserId >= 0">Testuser_ID= #{testUserId},</if>
+            <if test="input.newSipSerialName != null and input.newSipSerialName.length() > 0">SipSerialName= #{input.newSipSerialName},</if>
+            <if test="testLotCodeId >= 0">Product_TestConfiguration_ID= #{testLotCodeId},</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+    <select id="getTotalMACStatusByMacAddress" resultType="java.lang.Long" >
+        select m.Status_ID from Product_macaddress m
+        where m.Product_Testconfiguration_ID=(select Product_Testconfiguration_ID from Product_macaddress where Address= #{Address}) ;
+    </select>
+
+    <select id="getTotalMACStatusByLotCode" resultType="java.lang.Long" >
+        select m.Status_ID from Product_macaddress m
+        where m.Product_Testconfiguration_ID=(select ID from Product_testconfiguration where LotCode= #{LotCode}) ;
+    </select>
+
+    <select id="getMACBySipSerialName" resultMap="MacAddressResultMap" >
+        select ID, Address, SipLicense, Name from Product_macaddress m
+        where m.SipSerialName= (#{SipSerialName});
+    </select>
+
+    <select id="getLastTestMacByLotcodeId" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address
+        from Product_macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join Product_TestConfiguration tc ON tc.ID=maca.Product_TestConfiguration_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        where tc.LotCode=(#{LotCode}) and ( mss.Name='Used' or mss.Name='UsedFail')
+        order by maca.CreatedTime desc
+        LIMIT 1
+    </select>
+
+    <select id="getTotalMACStatusByConfigurationID" resultType="java.lang.Long" >
+        select m.Status_ID from Product_macaddress m
+        where m.Product_Testconfiguration_ID=#{id} ;
+    </select>
+
+
+
+</mapper>

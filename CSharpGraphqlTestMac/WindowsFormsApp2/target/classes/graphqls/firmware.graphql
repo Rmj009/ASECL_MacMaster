@@ -1,0 +1,50 @@
+
+type Firmware{
+    ID: Int!
+    Name: String!
+    Version: String!
+    Path: String
+    Remark: String
+    MD5: String
+    CreatedOwner: User
+    CreatedTime: Timestamp
+}
+
+input FirmwareCreationInput{
+    saveName: String
+    name: String!
+    version: String!
+    remark: String
+    md5: String
+    ownerEmplayeeId: String!
+}
+
+input FirmwareQueryInput{
+    name: String
+    version: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+input FirmwareDeleteInput{
+    name: String!
+    version: String!
+}
+
+type FirmwareInfo{
+    Name: String!
+    Versions: [FirmwareVersion!]!
+}
+
+type FirmwareVersion{
+    ID: Int!
+    Version: String!
+    Path: String!
+    Remark: String
+    MD5: String!
+    CreatedOwner: User!
+    CreatedTime: Timestamp!
+}

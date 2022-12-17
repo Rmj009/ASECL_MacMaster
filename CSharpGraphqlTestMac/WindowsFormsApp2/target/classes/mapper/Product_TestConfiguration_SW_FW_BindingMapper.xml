@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_TestConfiguration_SW_FW_BindingMapper">
+
+    <resultMap id="Product_TestConfiguration_SW_FW_Result" type="Product_TestConfiguration_SW_FW_Binding">
+        <result property="ID" column="ID"/>
+        <result property="IsActived" column="IsActived" />
+        <result property="CreatedTime" column="D_CreatedTime"/>
+        <association property="Product_TestConfiguration" resultMap="Product_TestConfigurationResult"/>
+        <association property="Software" resultMap="SoftwareResult"/>
+        <association property="Firmware" resultMap="FirmwareResult"/>
+    </resultMap>
+
+    <resultMap id="Product_TestConfigurationResult" type="Product_TestConfiguration">
+        <result property="ID" column="T_ID"/>
+        <result property="LotCode" column="T_LotCode"/>
+        <result property="StartDate" column="T_StartDate"/>
+        <result property="CreatedTime" column="T_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="SoftwareResult" type="Software">
+        <result property="ID" column="S_ID"/>
+        <result property="Name" column="S_Name"/>
+        <result property="Version" column="S_Version" />
+        <result property="CreatedTime" column="S_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="FirmwareResult" type="Firmware">
+        <result property="ID" column="F_ID"/>
+        <result property="Name" column="F_Name"/>
+        <result property="Version" column="F_Version" />
+        <result property="CreatedTime" column="F_CreatedTime"/>
+    </resultMap>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.TestConfiguration_SW_FW_Binding">
+        INSERT INTO product_testconfiguration_sw_fw_binding (Product_TestConfiguration_ID, FW_ID, SW_ID, IsActived)
+        SELECT
+        (SELECT ID FROM product_testconfiguration WHERE ID=#{Product_TestConfiguration.ID}),
+        (SELECT ID FROM firmware WHERE ID=#{Firmware.ID}),
+        (SELECT ID FROM software WHERE ID=#{Software.ID}),
+        #{IsActived}
+        FROM DUAL
+        WHERE NOT EXISTS (
+        SELECT 1 FROM product_testconfiguration_sw_fw_binding WHERE Product_TestConfiguration_ID = #{Product_TestConfiguration.ID}
+            and FW_ID = #{Firmware.ID} and SW_ID = #{Software.ID}
+        )
+    </insert>
+
+    <select id="getIsActivedByLotCode" resultMap="Product_TestConfiguration_SW_FW_Result">
+        select
+        tb.ID as ID,
+        tb.IsActived as IsActived,
+        tb.CreatedTime as CreatedTime,
+        tcf.ID as T_ID,
+        tcf.LotCode as T_LotCode,
+        sw.ID as S_ID,
+        sw.Name as S_Name,
+        sw.Version as S_Version,
+        fw.ID as F_ID,
+        fw.Name as F_Name,
+        fw.Version as F_Version
+        from product_testconfiguration_sw_fw_binding tb
+        inner join product_testconfiguration tcf ON tcf.ID=tb.product_TestConfiguration_ID
+        inner join firmware fw ON fw.ID=tb.FW_ID
+        inner join software sw ON sw.ID=tb.SW_ID
+        where tcf.LotCode = (#{lotcode}) AND tb.IsActived = 1
+    </select>
+
+    <select id="get" resultMap="Product_TestConfiguration_SW_FW_Result">
+        select
+        tb.ID as ID,
+        tb.IsActived as IsActived,
+        tb.CreatedTime as CreatedTime,
+        tcf.ID as T_ID,
+        tcf.LotCode as T_LotCode,
+        sw.ID as S_ID,
+        sw.Name as S_Name,
+        sw.Version as S_Version,
+        fw.ID as F_ID,
+        fw.Name as F_Name,
+        fw.Version as F_Version
+        from Product_testconfiguration_sw_fw_binding tb
+        inner join Product_testconfiguration tcf ON tcf.ID=tb.Product_TestConfiguration_ID
+        inner join firmware fw ON fw.ID=tb.FW_ID
+        inner join software sw ON sw.ID=tb.SW_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+
+            <if test="lotcode != null and lotcode.length()>0">
+                AND tcf.LotCode = (#{lotcode})
+            </if>
+
+            <if test="swName != null and swName.length()>0">
+                AND sw.Name =(#{swName})
+            </if>
+
+            <if test="swVersion != null and swVersion.length()>0">
+                AND sw.Version =(#{swVersion})
+            </if>
+
+            <if test="fwName != null and fwName.length()>0">
+                AND fw.Name =(#{fwName})
+            </if>
+
+            <if test="fwVersion != null and fwVersion.length()>0">
+                AND fw.Version =(#{fwVersion})
+            </if>
+
+        </trim>
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_TestConfiguration_SW_FW_Binding">
+        update Product_testconfiguration_sw_fw_binding
+        set IsActived = (#{IsActived})
+        where Product_TestConfiguration_ID = (#{Product_TestConfiguration.ID})
+        and FW_ID = #{Firmware.ID} and SW_ID = #{Software.ID}
+    </update>
+
+    <update id="changeIsActived">
+        update product_testconfiguration_sw_fw_binding
+        set IsActived = (#{IsActive})
+        where ID = (#{Id})
+    </update>
+
+</mapper>

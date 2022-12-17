@@ -1,0 +1,53 @@
+#type Query{
+#    products: [ProductModel!]
+#}
+#
+#type Mutation {
+#    CreateProduct(input: ProductInputModel!): ResponseModel!
+#}
+
+#type ProductModel{
+#    id: Int!
+#    name: String!
+#    remark: String!
+#}
+
+type ProductDevice{
+    ID: Int!
+    Name: String!
+    Remark: String
+    ProductFamily: ProductFamily
+    CreatedOwner: User
+    CreatedTime: Timestamp
+}
+
+
+input ProductDeviceCreationInput{
+    name: String!
+    remark: String
+    familyName: String!
+    ownerEmplayeeId: String!
+}
+
+input ProductDeviceUpgradeInput{
+    originName: String!
+    name: String
+    originFamilyName: String!
+    familyName: String
+    remark: String
+}
+
+input ProductDeviceQueryInput{
+    familyName: String
+    name: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+input ProductDeviceDeleteInput{
+    name: String!
+    familyName: String!
+}

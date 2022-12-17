@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.ProductFamilyMapper">
+
+    <resultMap id="CreatedOwnerResult" type="User">
+        <result property="ID" column="CO_ID"/>
+        <result property="EmployeeID" column="CO_EmployeeID"/>
+        <result property="RealName" column="CO_RealName"/>
+        <result property="NickName" column="CO_NickName"/>
+        <result property="EMail" column="CO_EMail"/>
+        <result property="Phone" column="CO_Phone"/>
+    </resultMap>
+
+    <resultMap id="ProductDeviceResult" type="ProductDevice">
+        <result property="ID" column="P_ID"/>
+        <result property="Name" column="P_Name"/>
+        <result property="Remark" column="P_Remark"/>
+    </resultMap>
+
+    <resultMap id="ProductFamilyResult" type="ProductFamily">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Remark" column="Remark"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="CreatedOwner" resultMap="CreatedOwnerResult"/>
+        <collection property="productDevices" resultMap="ProductDeviceResult" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.ProductFamily">
+        INSERT INTO product_family (Name, Remark, CreatedOwner_ID)
+        SELECT
+        #{Name, jdbcType=VARCHAR},
+        #{Remark, jdbcType=VARCHAR},
+        (SELECT ID FROM User WHERE EmployeeID=#{CreatedOwner.EmployeeID})
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM product_family WHERE Name = #{Name, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="ProductFamilyResult">
+        select
+        f.ID as ID,
+        f.Name as Name,
+        f.Remark as Remark,
+        f.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark
+        from product_family f
+        left join lotcode p ON f.ID=p.Product_Family_ID
+        left join user u ON u.ID = f.CreatedOwner_ID
+    </select>
+
+    <select id="get" resultMap="ProductFamilyResult">
+    select
+        f.ID as ID,
+        f.Name as Name,
+        f.Remark as Remark,
+        f.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark
+        from product_family f
+        left join lotcode p ON f.ID=p.Product_Family_ID
+        left join user u ON u.ID = f.CreatedOwner_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+
+            <if test="name != null and name.length()>0">
+                AND f.Name LIKE CONCAT('%', (#{name}),'%')
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND u.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND f.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND f.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <select id="getByName" resultMap="ProductFamilyResult">
+        select
+        f.ID as ID,
+        f.Name as Name,
+        f.Remark as Remark
+        from product_family f
+        WHERE f.Name = (#{name})
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from product_family
+    </select>
+
+    <select id="getCountByName" resultType="int">
+        select count(*) from product_family where Name = (#{name})
+    </select>
+
+    <select id="getIdByName" resultType="long">
+        select ID from product_family where Name = (#{name})
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.ProductFamily">
+        update product_family set Name = (#{Name}), Remark = (#{Remark}) where ID = (#{ID})
+    </update>
+
+    <update id="updateData">
+        update product_family
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.name != null and input.name.length() > 0">Name= #{input.name},</if>
+            <if test="input.remark != null and input.remark.length() > 0">Remark= #{input.remark},</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+    <delete id="deleteByID" >
+        delete from product_family where ID=(#{id})
+    </delete>
+
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.TestResultStatusMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.TestResultStatus">
+        INSERT INTO TestResultStatus (Result)
+        SELECT #{Result, jdbcType=VARCHAR} FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM TestResultStatus WHERE Result = #{Result, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultType="com.asecl.simdc.org.simdc_project.db.entity.TestResultStatus">
+        select * from TestResultStatus
+    </select>
+
+    <select id="getIDByResult" resultType="com.asecl.simdc.org.simdc_project.db.entity.TestResultStatus">
+        select ID,Result from TestResultStatus where Result=(#{Result})
+    </select>
+
+<!--    <select id="getByName" resultType="com.asecl.simdc.org.simdc_project.db.entity.LoginType">-->
+<!--        select * from logintype where Name = (#{name}) LIMIT 1-->
+<!--    </select>-->
+
+<!--    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.LoginType">-->
+<!--        update logintype set Name = (#{Name}) where ID = (#{ID})-->
+<!--    </update>-->
+
+<!--    <delete id="deleteByID" >-->
+<!--        delete from logintype where ID=(#{id})-->
+<!--    </delete>-->
+
+<!--    <delete id="deleteByName" >-->
+<!--        delete from logintype where Name=(#{name})-->
+<!--    </delete>-->
+</mapper>

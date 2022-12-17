@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.MacAddressMapper">
+
+
+
+<!--    <resultMap id="SoftwareResultMap" type="Software">-->
+<!--        <result property="ID" column="SF_ID"/>-->
+<!--        <result property="Name" column="SF_Name"/>-->
+<!--        <result property="Version" column="SF_Version"/>-->
+<!--        <result property="CreatedTime" column="SF_CreatedTime"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="ICOwnerResultMap" type="User" >-->
+<!--        <id property="ID" column="ICOw_ID"/>-->
+<!--        <result property="Name" column="ICOw_name"/>-->
+<!--        <result property="CreatedTime" column="ICOw_CreatedTime"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="ICResultMap" type="IC">-->
+<!--        <result property="ID" column="IC_ID"/>-->
+<!--        <result property="Name" column="IC_Name"/>-->
+<!--        <result property="Remark" column="IC_Remark"/>-->
+<!--        <result property="CreatedTime" column="IC_CreatedTime"/>-->
+<!--        <association property="CreatedOwner" resultMap="ICOwnerResultMap"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="FWOwnerResultMap" type="User" >-->
+<!--        <id property="ID" column="FWOw_ID"/>-->
+<!--        <result property="Name" column="FWOw_name"/>-->
+<!--        <result property="CreatedTime" column="FWOw_CreatedTime"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="FirmwareResultMap" type="Firmware">-->
+<!--        <result property="ID" column="FW_ID"/>-->
+<!--        <result property="Name" column="FW_Name"/>-->
+<!--        <result property="Version" column="FW_Version"/>-->
+<!--        <result property="Path" column="FW_Path"/>-->
+<!--        <result property="Remark" column="FW_Remark"/>-->
+<!--        <result property="MD5" column="FW_MD5"/>-->
+<!--        <result property="CreatedTime" column="FW_CreatedTime"/>-->
+<!--        <association property="CreatedOwner" resultMap="FWOwnerResultMap"/>-->
+<!--        <association property="IC_ID" resultMap="ICResultMap"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="OwnerResultMap" type="User" >-->
+<!--        <id property="ID" column="Ow_ID"/>-->
+<!--        <result property="Name" column="Ow_name"/>-->
+<!--        <result property="CreatedTime" column="Ow_CreatedTime"/>-->
+<!--    </resultMap>-->
+
+<!--    <resultMap id="Software_BindingResultMap" type="Software_Binding">-->
+<!--        <result property="ID" column="SB_ID"/>-->
+<!--        <result property="CreatedTime" column="SB_CreatedTime"/>-->
+<!--        <association property="SW" resultMap="SoftwareResultMap"/>-->
+<!--        <association property="FW" resultMap="FirmwareResultMap"/>-->
+<!--        <association property="CreatedOwner" resultMap="OwnerResultMap"/>-->
+<!--    </resultMap>-->
+
+    <resultMap id="MacTypeResultMap" type="MacType">
+        <result property="ID" column="MT_ID"/>
+        <result property="Name" column="MT_Name"/>
+        <result property="CreatedTime" column="MT_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="MacStatusResultMap" type="MacStatus">
+        <result property="ID" column="MS_ID"/>
+        <result property="Name" column="MS_Name"/>
+        <result property="CreatedTime" column="MS_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="TestConfigurationResultMap" type="TestConfiguration">
+        <result property="ID" column="TC_ID"/>
+        <result property="LotCode" column="TC_LotCode"/>
+        <result property="CreatedTime" column="TC_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="MCreateUserResultMap" type="User" >
+        <id property="ID" column="Mcu_ID"/>
+        <result property="EmployeeID" column="Mcu_EmployeeID"/>
+    </resultMap>
+
+    <resultMap id="TestUserResultMap" type="User" >
+        <id property="ID" column="Tu_ID"/>
+        <result property="EmployeeID" column="Tu_EmployeeID"/>
+    </resultMap>
+
+    <resultMap id="MacAddressResultMap" type="MacAddress">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Address" column="Address"/>
+        <result property="AddressDecimal" column="AddressDecimal"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="MacStatus" resultMap="MacStatusResultMap"/>
+        <association property="MacType" resultMap="MacTypeResultMap"/>
+        <association property="TestConfiguration" resultMap="TestConfigurationResultMap"/>
+        <association property="TestUser" resultMap="TestUserResultMap"/>
+        <association property="CreatedOwner" resultMap="MCreateUserResultMap"/>
+    </resultMap>
+
+    <resultMap id="MacAddressDispatchResultMap" type="MacAddress">
+        <result property="ID" column="ID"/>
+        <result property="Address" column="Address"/>
+    </resultMap>
+
+    <insert id="fastBatchInsert" >
+        INSERT INTO macaddress
+        (Address, AddressDecimal, MacType_ID,
+        TestConfiguration_ID, Testuser_ID, CreatedOwner_ID,
+        Status_ID)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.Address},#{item.AddressDecimal},#{item.MacType.ID},
+            #{item.TestConfiguration.ID}, #{item.TestUser.ID}, #{item.CreatedOwner.ID}, #{item.MacStatus.ID})
+        </foreach>
+    </insert>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacAddress">
+        INSERT INTO macaddress (Name, Address, AddressDecimal, MacType_ID, TestConfiguration_ID, Testuser_ID, CreatedOwner_ID, Status_ID)
+        SELECT
+        #{Name},
+        #{Address},
+        #{AddressDecimal},
+        (SELECT ID FROM MacType WHERE Name=#{MacType.Name}),
+        (SELECT ID FROM TestConfiguration WHERE ID=#{TestConfiguration.ID}),
+        (SELECT ID FROM User WHERE EmployeeID=#{TestUser.EmployeeID}),
+        (SELECT ID FROM User WHERE EmployeeID=#{CreatedOwner.EmployeeID}),
+        (SELECT ID FROM MasStatus WHERE Name=#{MasStatus.Name}),
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM macaddress WHERE AddressDecimal = #{AddressDecimal}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime,
+        tc.ID as TC_ID,
+        tc.LotCode as TC_LotCode,
+        tc.CreatedTime as TC_CreatedTime,
+        daa.ID as Tu_ID,
+        daa.EmployeeID as Tu_EmployeeID,
+        dab.ID as Mcu_ID,
+        dab.EmployeeID as Mcu_EmployeeID,
+        mss.ID as MS_ID,
+        mss.Name as MS_Name,
+        mss.CreatedTime as MS_CreatedTime
+        from macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join TestConfiguration tc ON tc.ID=maca.TestConfiguration_ID
+        left join user daa ON daa.ID=maca.Testuser_ID
+        left join user dab ON dab.ID=maca.CreatedOwner_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+    </select>
+
+    <select id="getByTestConfigIdAndStatusId" resultMap="MacAddressResultMap">
+        select ID, Name, Address from macaddress WHERE Status_ID = (#{statusId}) AND TestConfiguration_ID = (#{id}) Limit 1
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from macaddress
+    </select>
+
+    <select id="getByAddress" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime,
+         tc.ID as TC_ID,
+        tc.LotCode as TC_LotCode,
+        tc.CreatedTime as TC_CreatedTime,
+        daa.ID as Tu_ID,
+        daa.EmployeeID as Tu_EmployeeID,
+        dab.ID as Mcu_ID,
+        dab.EmployeeID as Mcu_EmployeeID,
+        mss.ID as MS_ID,
+        mss.Name as MS_Name,
+        mss.CreatedTime as MS_CreatedTime
+        from macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join TestConfiguration tc ON tc.ID=maca.TestConfiguration_ID
+        left join user daa ON daa.ID=maca.Testuser_ID
+        left join user dab ON dab.ID=maca.CreatedOwner_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        Where maca.AddressDecimal = (#{Address})
+        and maca.MacType_ID = (#{macTypeID})
+        LIMIT 1
+    </select>
+
+    <select id="getByOuiAddress" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime,
+        tc.ID as TC_ID,
+        tc.LotCode as TC_LotCode,
+        tc.CreatedTime as TC_CreatedTime,
+        daa.ID as Tu_ID,
+        daa.EmployeeID as Tu_EmployeeID,
+        dab.ID as Mcu_ID,
+        dab.EmployeeID as Mcu_EmployeeID,
+        mss.ID as MS_ID,
+        mss.Name as MS_Name,
+        mss.CreatedTime as MS_CreatedTime
+        from macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join TestConfiguration tc ON tc.ID=maca.TestConfiguration_ID
+        left join user daa ON daa.ID=maca.Testuser_ID
+        left join user dab ON dab.ID=maca.CreatedOwner_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        Where maca.Address LIKE CONCAT((#{oui}), '-','%')
+        and maca.Address REGEXP CONCAT((#{oui}), '-')
+        and maca.MacType_ID = (#{macTypeID})
+        LIMIT 1
+    </select>
+
+    <select id="getLastTestMacByLotcodeId" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address
+        from macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join TestConfiguration tc ON tc.ID=maca.TestConfiguration_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        where tc.LotCode=(#{LotCode}) and ( mss.Name='Used' or mss.Name='UsedFail')
+        order by maca.CreatedTime desc
+        LIMIT 1
+    </select>
+
+    <select id="getMacAddressMatchRangeCount" resultType="int">
+        select count(*) from macaddress
+            where AddressDecimal <![CDATA[ >= ]]> (#{startAddress})
+            and AddressDecimal <![CDATA[ <= ]]> (#{endAddress})
+            and MacType_ID = (#{macTypeID})
+    </select>
+
+    <select id="getMacAddressMatchRangeCountByOdd" resultType="int">
+         select count(*) from macaddress
+            where AddressDecimal <![CDATA[ >= ]]> (#{startAddress}) and
+            AddressDecimal <![CDATA[ <= ]]> (#{endAddress}) and
+            AddressDecimal REGEXP '^[[:digit:]]*[13579]$' = 1 and
+            MacType_ID = (#{macTypeID})
+    </select>
+
+    <select id="getLastBTMacAddress" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime
+        from macaddress maca inner join MacType mt ON mt.ID=maca.MacType_ID
+        Where mt.Name = 'BT' Order by maca.AddressDecimal desc limit 1
+    </select>
+
+    <select id="getMacAddressMatchRangeCountByEven" resultType="int">
+        select count(*) from macaddress
+            where AddressDecimal <![CDATA[ >= ]]> (#{startAddress}) and
+            AddressDecimal <![CDATA[ <= ]]> (#{endAddress}) and
+            AddressDecimal REGEXP '^[[:digit:]]*[02468]$' = 1
+            and MacType_ID = (#{macTypeID})
+    </select>
+
+    <select id="getLastInsertNameIdBySortTimestamp" resultType="java.lang.String">
+        select Name from macaddress
+            where Name Like CONCAT((#{name}),'%') and Name REGEXP (#{name})
+            and MacType_ID = (#{macTypeID})
+            order by id desc limit 1;
+    </select>
+
+    <select id="getcountByAddressbinding" resultType="int">
+        select  count(Address)  from macaddress where Address=#{Address} and TestConfiguration_ID is NULL and Status_ID=(select ID from macstatus where Name="Unused");
+    </select>
+
+    <select id="getCountByTestConfigurationId" resultType="int">
+        select  count(Address)  from macaddress where TestConfiguration_ID=#{id}
+    </select>
+
+    <select id="checkMacAddressesHaveUsing" resultType="int">
+        select  count(Address)  from macaddress ma
+        inner join macstatus ms ON ms.ID=ma.STATUS_ID
+        where where ma.TestConfiguration_ID=#{testconfigurationId} and ms.Name = 'Using'
+    </select>
+
+    <select id="getCountByTestConfigurationLotCode" resultType="int">
+        select  count(m.TestConfiguration_ID)  from macaddress m
+        INNER join testConfiguration tc on tc.Device=#{Device}
+        where tc.ID=m.TestConfiguration_ID ;
+    </select>
+
+    <select id="getDispatchMacAddress" resultMap="MacAddressDispatchResultMap">
+    select
+        ID as ID,
+        Address as Address
+        from macaddress
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+            <if test="startAddress > 0">
+                AND AddressDecimal <![CDATA[ >= ]]> (#{startAddress})
+            </if>
+            AND TestConfiguration_ID is null
+            AND Status_ID = (#{macStatusID})
+            AND MacType_ID = (#{macTypeID})
+
+            <if test="isEvenType == 1">
+                AND AddressDecimal REGEXP '^[[:digit:]]*[02468]$' = 1
+            </if>
+
+            <if test="isOddType == 1">
+                AND AddressDecimal REGEXP '^[[:digit:]]*[13579]$' = 1
+            </if>
+        </trim>
+        ORDER BY AddressDecimal ASC limit #{totalCount}
+    </select>
+    
+    <select id="get" resultMap="MacAddressResultMap">
+        select
+        maca.ID as ID,
+        maca.Name as Name,
+        maca.Address as Address,
+        maca.AddressDecimal as AddressDecimal,
+        maca.CreatedTime as CreatedTime,
+        mt.ID as MT_ID,
+        mt.Name as MT_Name,
+        mt.CreatedTime as MT_CreatedTime,
+        tc.ID as TC_ID,
+        tc.LotCode as TC_LotCode,
+        tc.CreatedTime as TC_CreatedTime,
+        daa.ID as Tu_ID,
+        daa.EmployeeID as Tu_EmployeeID,
+        dab.ID as Mcu_ID,
+        dab.EmployeeID as Mcu_EmployeeID,
+        mss.ID as MS_ID,
+        mss.Name as MS_Name,
+        mss.CreatedTime as MS_CreatedTime
+        from macaddress maca left join MacType mt ON mt.ID=maca.MacType_ID
+        left join TestConfiguration tc ON tc.ID=maca.TestConfiguration_ID
+        left join user daa ON daa.ID=maca.Testuser_ID
+        left join user dab ON dab.ID=maca.CreatedOwner_ID
+        left join macstatus mss ON mss.ID=maca.Status_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+            <if test="oui != null and oui.length()>0">
+                AND maca.Address LIKE CONCAT((#{oui}), '-','%')
+                AND maca.Address REGEXP CONCAT((#{oui}), '-')
+            </if>
+
+            <if test="address != null and address.length()>0">
+                AND maca.Address = (#{address})
+            </if>
+
+            <if test="macStatus != null and macStatus.length()>0">
+                AND mss.Name = (#{macStatus})
+            </if>
+
+            <if test="name != null and name.length()>0">
+                AND maca.Name LIKE CONCAT('%', (#{name}),'%')
+            </if>
+
+            <if test="macType != null and macType.length()>0">
+                AND mt.Name = (#{macType})
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND dab.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND maca.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND maca.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <update id="updateTestUserIdAndStatusIdByAddress">
+        update macaddress
+        set
+        Testuser_ID = (#{testUserId}),
+        Status_ID = (#{statusId})
+        where Address = (#{address})
+    </update>
+
+    <update id="updateSipSerialNameByAddress">
+        update macaddress
+        set
+        SipSerialName = (#{sipserialname})
+        where Address = (#{address})
+    </update>
+
+    <update id="unbindingTestConfigIdByStateUnused">
+        update macaddress
+        set
+        TestConfiguration_ID = null,
+        Name = ''
+        where TestConfiguration_ID = (#{testId}) and
+        Status_ID = (#{unusedId})
+    </update>
+
+    <update id="fastBatchUpdate">
+        INSERT INTO macaddress(ID, Name, TestConfiguration_ID )
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.ID},(#{item.Name}),(#{item.TestConfiguration.ID}))
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        ID = VALUES(ID),
+        Name = VALUES(Name),
+        TestConfiguration_ID = VALUES(TestConfiguration_ID)
+    </update>
+
+    <update id="updateData">
+        update macaddress
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.newName != null and input.newName.length() > 0">Name= #{input.newName},</if>
+            <if test="input.newStatusID >= 0">Status_ID= #{input.newStatusID},</if>
+            <if test="testUserId >= 0">Testuser_ID= #{testUserId},</if>
+            <if test="testLotCodeId >= 0">TestConfiguration_ID= #{testLotCodeId},</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacAddress">
+        update macaddress set
+          Name = (#{Name}), Address= (#{Address}), AddressDecimal= (#{AddressDecimal}),
+        where ID = (#{ID})
+    </update>
+
+    <delete id="deleteByID" >
+        delete from macaddress where ID=(#{id}) and MacType_ID = (#{macTypeID})
+    </delete>
+
+    <delete id="deleteByAddress" >
+        delete from macaddress where AddressDecimal=(#{Address}) and MacType_ID = (#{macTypeID})
+    </delete>
+
+    <select id="getMacAddressStatus" resultType="java.lang.String">
+         select ms.Name
+         from macstatus ms
+         left join macaddress m ON m.Status_ID=ms.ID
+         where m.address = (#{Address})
+    </select>
+
+    <select id="getTotalMACStatusByMacAddress" resultType="java.lang.Long" >
+        select m.Status_ID from macaddress m
+        where m.Testconfiguration_ID=(select Testconfiguration_ID from macaddress where Address= #{Address}) ;
+    </select>
+
+    <select id="getTotalMACStatusByLotCode" resultType="java.lang.Long" >
+        select m.Status_ID from macaddress m
+        where m.Testconfiguration_ID=(select ID from testconfiguration where LotCode= #{LotCode}) ;
+    </select>
+
+</mapper>

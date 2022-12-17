@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_MacAddress_ResultBindingMapper">
+
+    <resultMap id="MacAddressResultMap" type="Product_MacAddress">
+        <result property="ID" column="M_ID"/>
+        <result property="Name" column="M_Name"/>
+        <result property="Address" column="M_Address"/>
+    </resultMap>
+
+    <resultMap id="TestResultResultMap" type="TestResultStatus">
+        <result property="ID" column="R_ID"/>
+        <result property="Result" column="R_Result"/>
+    </resultMap>
+
+    <resultMap id="TestConfigurationResultMap" type="Product_TestConfiguration">
+        <result property="ID" column="TC_ID"/>
+        <result property="LotCode" column="TC_LotCode"/>
+        <result property="CreatedTime" column="TC_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="DeviceResultMap" type="DutDevice">
+        <result property="ID" column="DUT_ID"/>
+        <result property="GroupPC" column="DUT_GroupPC"/>
+        <result property="HostName" column="DUT_HostName"/>
+        <result property="ProductDevice" column="DUT_ProductDevice"/>
+        <result property="Remark" column="DUT_Remark"/>
+        <result property="CreatedTime" column="DUT_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="MacAddress_ResultBindingResult" type="Product_MacAddress_ResultBinding">
+        <result property="ID" column="ID"/>
+        <result property="Path" column="Path"/>
+        <result property="OPId" column="OPId"/>
+        <result property="TestFlow" column="TestFlow"/>
+        <result property="Barcode" column="Barcode"/>
+        <result property="Barcode_Vendor" column="Barcode_Vendor"/>
+        <result property="ResultSummary" column="ResultSummary" typeHandler="com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler" />
+        <result property="CreatedTime" column="PF_CreatedTime"/>
+        <association property="Mac_ID" resultMap="MacAddressResultMap"/>
+        <association property="dutDevice" resultMap="DeviceResultMap"/>
+        <association property="Result_ID" resultMap="TestResultResultMap"/>
+        <association property="Product_TestConfiguration_ID" resultMap="TestConfigurationResultMap"/>
+    </resultMap>
+
+    <!-- remove dobule insert security
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacAddress_ResultBinding">
+        INSERT INTO Product_macaddress_resultbinding (OPId,TestFlow, DutDevice_ID, Product_MacAddress_ID,2DBarcode,Product_TestConfiguration_ID)
+        SELECT
+        #{OPId},
+        #{TestFlow},
+        #{dutDevice.ID},
+        #{Mac_ID.ID},
+        #{Barcode},
+        #{Product_TestConfiguration_ID.ID}
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM Product_macaddress_resultbinding WHERE Product_MacAddress_ID = #{Mac_ID.ID} and OPId = #{OPId}
+          and TestFlow = #{TestFlow} and 2DBarcode = #{Barcode} and Product_TestConfiguration_ID = #{Product_TestConfiguration_ID.ID}
+        )
+    </insert>
+    -->
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.MacAddress_ResultBinding">
+        INSERT INTO Product_macaddress_resultbinding (OPId,TestFlow, DutDevice_ID, Product_MacAddress_ID,2DBarcode,2DBarcode_Vendor,Product_TestConfiguration_ID)
+        VALUES
+        (
+        #{OPId},
+        #{TestFlow},
+        #{dutDevice.ID},
+        #{Mac_ID.ID},
+        #{Barcode},
+        #{Barcode_Vendor},
+        #{Product_TestConfiguration_ID.ID}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="MacAddress_ResultBindingResult">
+        select
+        mr.ID as ID,
+        mr.Path as Path,
+        mr.OPId as OPId,
+        mr.TestFlow as TestFlow,
+        mr.ResultSummary as ResultSummary,
+        mr.CreatedTime as CreatedTime,
+        m.ID as M_ID,
+        m.Name as M_Name,
+        m.Address as M_Address,
+        tr.ID as R_ID,
+        tr.Result as R_Result
+        from Product_macaddress_resultbinding mr
+        inner join Product_MacAddress m on m.ID=mr.Mac_ID,
+        inner join TestResultStatus tr on tr.ID=mr.Result_ID
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_MacAddress_ResultBinding">
+        update Product_macaddress_resultbinding set
+        ResultStatus_ID = #{ResultStatus_ID.ID},
+        ResultSummary = #{ResultSummary, jdbcType=OTHER, typeHandler=com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler},
+        Path = #{Path, jdbcType=VARCHAR}
+        where Product_MacAddress_ID = #{Mac_ID.ID}
+    </update>
+    <select id="getMacAddressStatus" resultType="java.lang.String">
+         select ms.Name
+         from macstatus ms
+         left join Product_macaddress m ON m.Status_ID=ms.ID
+         where m.address = (#{Address})
+    </select>
+
+
+    <select id="getIdByMacId" resultType="java.lang.Long">
+        select
+        ID
+        from Product_macaddress_resultbinding
+        where Product_MacAddress_ID = #{macId}
+        order by CreatedTime desc LIMIT 1
+    </select>
+
+
+
+    <delete id="deleteByMacId" >
+        delete from Product_macaddress_resultbinding where Product_MacAddress_ID=(#{macId}) and Product_TestConfiguration_ID=(#{tcId})
+    </delete>
+</mapper>

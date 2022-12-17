@@ -1,0 +1,34 @@
+
+type ProductFamily{
+    ID: Int!
+    Name: String!
+    Remark: String
+    productDevices: [ProductDevice]
+    CreatedOwner: User
+    CreatedTime: Timestamp
+}
+
+input ProductFamilyCreationInput{
+    name: String!
+    remark: String
+    ownerEmplayeeId: String!
+}
+
+input ProductFamilyQueryInput{
+    name: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+input ProductFamilyUpgradeInput{
+    originName: String!
+    name: String
+    remark: String
+}
+
+input ProductFamilyDeleteInput{
+    name: String!
+}

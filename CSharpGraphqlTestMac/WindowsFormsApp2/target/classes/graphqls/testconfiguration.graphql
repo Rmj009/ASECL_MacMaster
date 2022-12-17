@@ -1,0 +1,132 @@
+
+type TestConfiguration_SW_FW_Binding{
+    ID: Int!
+    Software: Software
+    Firmware: Firmware
+    IsActived: Int
+    CreatedTime: Timestamp
+}
+
+type TestConfiguration{
+    ID: Int!
+    LotCode: String!
+    PID: String!
+    Status: TestConfigurationStatus!
+    ProductDevice: ProductDevice
+    FwSwBinding: [TestConfiguration_SW_FW_Binding!]
+    Customer: Customer
+    DutDevices: [DutDevice]
+    MacDispatchType: MacDispatchType
+    ForceStopUser: User
+    ForceStopRemark: String
+    CreatedOwner: User
+    FinishDate: Timestamp
+    CreatedTime: Timestamp
+    ExtraJson: Json
+    LogTitle: Json
+    LogLimitUpper: Json
+    LogLimitLower: Json
+    TrayMode: Int
+}
+
+type TestConfigurationQueryResponse{
+    TotalPage: Long
+    PageSize: Int
+    PageNumber: Int
+    TotalSize: Int
+    Datas: [TestConfiguration]
+}
+
+type TestConfigurationStatus{
+    ID: Int!
+    Name: String!
+    CreatedTime: Timestamp!
+}
+
+input TestConfigurationQueryInput{
+    lotcode: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = 1
+    pageSize: Int = 1
+}
+
+input TestConfigurationCreationInput{
+    lotcode: String
+    pid: String
+    testFlow: String!
+    testDutMode: String
+    testPGMName: String
+    testLoadBoard: String
+    testMode: String
+    productFamilyName: String
+    groupPC: String
+    productDeviceName: String
+    customerName: String
+#    dutNames: [String]
+    macDispatchType: String
+    macName: String
+    macType: String
+    macStart: String
+    macRotatIdStart: Int = -1
+    macCount: Int = -1
+    autogen: Int = 0
+    ownerEmplayeeId: String
+    opId: String
+    fwName: String
+    fwVersion: String
+    swName: String
+    swVersion: String
+    logTitle: Json!
+    logLimitUpper: Json!
+    logLimitLower: Json!
+    trayMode: Int = -1
+    trayData: Json
+    trayWidth: Int = -1
+    trayHeight: Int = -1
+}
+
+input TestConfigurationUpgradeInput{
+    forceUpdate: Int = -1
+    lotcode: String!
+    productFamilyName: String
+    productDeviceName: String
+    groupPC: String
+    fwName: String
+    fwVersion: String
+    swName: String
+    swVersion: String
+    dutNames: [String]
+    ownerEmplayeeId: String
+}
+
+input TestConfigurationDeleteInput{
+    lotcode: String!
+}
+
+input TestConfigurationStatusUpdateInput{
+    lotcode: String!
+    status: String!
+    startEmplayeeId: String
+    forceStopEmplayeeId: String
+    forceStopReason: String
+}
+
+input SyncIput{
+    uploadLog: Int = -1
+    lotcode: String!
+    productFamily: String
+    productDevice: String
+    errorCode: String
+    filename: String
+    macType: String
+    address: String
+    result: String
+    resultSummary: Json
+    sipserialname: String
+    barcode: String
+    barcode_vendor: String
+
+    uploadLicense: Boolean = false
+    license: String
+}

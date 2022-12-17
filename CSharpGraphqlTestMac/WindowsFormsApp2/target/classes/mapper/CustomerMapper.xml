@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.CustomerMapper">
+
+    <resultMap id="TestConfigurationResult" type="TestConfiguration">
+        <result property="ID" column="T_ID"/>
+        <result property="Device" column="T_Device"/>
+        <result property="StartDate" column="T_StartDate"/>
+        <result property="CreatedTime" column="T_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="UserResultMap" type="User">
+        <result property="ID" column="U_ID"/>
+        <result property="EmployeeID" column="U_EmployeeID"/>
+        <result property="RealName" column="U_RealName"/>
+        <result property="NickName" column="U_NickName"/>
+        <result property="EMail" column="U_EMail"/>
+        <result property="Phone" column="U_Phone"/>
+        <result property="Password" column="U_Password"/>
+        <result property="IsActived" column="U_IsActived"/>
+        <result property="DisagreeReason" column="U_DisagreeReason"/>
+        <result property="LastActivedTime" column="U_LastActivedTime"/>
+        <result property="LastDisagreeActiveTime" column="U_LastDisagreeActiveTime"/>
+    </resultMap>
+
+    <resultMap id="CustomerResultMap" type="Customer">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Phone" column="Phone"/>
+        <result property="Remark" column="Remark"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="CreatedOwner" resultMap="UserResultMap"/>
+        <collection property="TestConfigurations" resultMap="TestConfigurationResult" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Customer">
+        INSERT INTO customer (Name,Phone,Remark,CreatedOwner_ID)
+        SELECT
+        #{Name, jdbcType=VARCHAR},
+        #{Phone, jdbcType=VARCHAR},
+        #{Remark, jdbcType=VARCHAR},
+        (SELECT ID FROM user WHERE EmployeeID=#{CreatedOwner.EmployeeID})
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM customer WHERE Name = #{Name, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="CustomerResultMap">
+        select
+        c.ID as ID,
+        c.Name as Name,
+        c.Phone as Phone,
+        c.Remark as Remark,
+        c.CreatedTime as CreatedTime,
+        u.ID as U_ID,
+        u.EmployeeID as U_EmployeeID,
+        u.RealName as U_RealName,
+        u.NickName as U_NickName,
+        u.EMail as U_EMail,
+        u.Phone as U_Phone,
+        u.Password as U_Password,
+        u.IsActived as U_IsActived,
+        u.DisagreeReason as U_DisagreeReason,
+        u.LastActivedTime as U_LastActivedTime,
+        u.LastDisagreeActiveTime as U_LastDisagreeActiveTime
+        from customer c left join user u ON u.ID=c.CreatedOwner_ID
+    </select>
+
+    <select id="get" resultMap="CustomerResultMap">
+        select
+        c.ID as ID,
+        c.Name as Name,
+        c.Remark as Remark,
+        c.Phone as Phone,
+        c.CreatedTime as CreatedTime,
+        u.ID as U_ID,
+        u.EmployeeID as U_EmployeeID,
+        u.RealName as U_RealName,
+        u.NickName as U_NickName,
+        u.EMail as U_EMail,
+        u.Phone as U_Phone,
+        u.IsActived as U_IsActived,
+        t.ID as T_ID,
+        t.Device as T_Device,
+        t.StartDate as T_StartDate,
+        t.CreatedTime as T_CreatedTime
+        from customer c
+        left join testconfiguration t ON t.Customer_ID=c.ID
+        left join user u ON u.ID = c.CreatedOwner_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+
+            <if test="name != null and name.length()>0">
+                AND c.Name LIKE CONCAT('%', (#{name}),'%')
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND u.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND c.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND c.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from customer
+    </select>
+
+    <select id="getByName" resultType="com.asecl.simdc.org.simdc_project.db.entity.Customer">
+        select * from customer where Name = (#{name}) LIMIT 1
+    </select>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Customer">
+        update customer set Name = (#{Name}) where ID = (#{ID})
+    </update>
+
+    <update id="updateData">
+        update customer
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.name != null and input.name.length() > 0">Name= #{input.name},</if>
+            <if test="input.remark != null and input.remark.length() > 0">Remark= #{input.remark},</if>
+            <if test="input.phone != null and input.phone.length() > 0">Phone= #{input.phone},</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+    <select id="getCountByName" resultType="int">
+        select count(Name) from customer where Name = (#{name})
+    </select>
+
+    <select id="getCountByNameInTestconfiguration" resultType="int">
+        select count(Customer_ID) from testconfiguration where Customer_ID=(select ID from customer where Name=(#{name}))
+    </select>
+
+    <delete id="deleteByID" >
+        delete from customer where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByName" >
+        delete from customer where Name=(#{name})
+    </delete>
+</mapper>

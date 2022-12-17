@@ -1,0 +1,110 @@
+#enum EnumMacType{
+#    Wifi,
+#    BT
+#}
+#
+#enum EnumIncreaseType{
+#    NormalRotateId,
+#    Normal,
+#    OddAndEvenRotateId,
+#    OddRotateId,
+#    Odd,
+#    EvenRotateId,
+#    Even
+#}
+
+type MacType{
+    ID: Int!
+    Name: String!
+    CreatedTime: Timestamp!
+}
+
+type MacStatus{
+    ID: Int!
+    Name: String!
+    CreatedTime: Timestamp!
+}
+
+type MacDispatchType{
+    ID: Int!
+    Name: String!
+    CreatedTime: Timestamp!
+}
+
+input MacQueryInput{
+    oui: String
+    address: String
+    name: String
+    macType: String
+    macStatus: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+input MacUpgradeInput{
+    address: String!
+    macType: String!
+    newName: String
+    newStatusID: Int = -1
+    newStatus: String
+    newTesterEmplayeeId: String
+    newSipSerialName: String
+    newTestConfigLotCode: String
+}
+
+input MacCreationInput{
+    address: String!
+    totalCount: Int!
+    macType: String!
+    increaseType: String = "Normal"
+    ownerEmplayeeId: String!
+}
+
+input MacDeleteInput{
+    address: String!
+    macType: String!
+}
+
+type MacAddress{
+    ID: Int!
+    AddressDecimal: Long!
+    Address: String!
+    Name: String!
+    MacStatus: MacStatus!
+    MacType: MacType!
+    TestConfiguration: TestConfiguration
+    TestUser: User
+    CreatedOwner: User
+    CreatedTime: Timestamp!
+}
+
+input MacDispatchInput{
+    productFamily: String!
+    productDevice: String!
+    lotCode: String!
+    dutPCName: String!
+    opId: String!
+    groupPC: String!
+    testFlow: String!
+    testerEmplayeeId: String!
+    barcode: String
+    barcode_vendor: String
+    sipserialname: String
+}
+
+input MacDispatchUpdateStatusInput{
+    productDevice: String!
+    status: String!
+    mac: String!
+}
+
+input MacXMLCreate{
+    address_start: String!
+    address_end: String!
+    po: String!
+    lotcode: String!
+    macType: String!
+}

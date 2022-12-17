@@ -1,0 +1,141 @@
+scalar Timestamp
+scalar Upload
+scalar Long
+scalar Json
+
+type Query{
+    QueryProductDevice(input: ProductDeviceQueryInput): [ProductDevice]
+    QueryMacAddress(input: MacQueryInput): [MacAddress]
+    QueryLastBTMacAddressInMP(input: MacQueryInput): MacAddress
+    QueryProductFamily(input: ProductFamilyQueryInput): [ProductFamily]
+    QueryCustomer(input: CustomerQueryInput): [Customer]
+    QuerySoftware(input:SoftwareQueryInput): [SoftwareInfo]
+    QueryFirmware(input: FirmwareQueryInput): [FirmwareInfo]
+    QueryDutDevice(input: DutDeviceQueryInput): [DutDevice]
+    QueryTestConfiguration(input: TestConfigurationQueryInput): TestConfigurationQueryResponse
+    PingServer(input: PingInput!): ResponseModel!
+    #2020/11/03  Add corr create lotcode
+    QueryNewLotcode: ResponseLotCodeModel!
+    QueryProductTestConfiguration(input: Product_TestConfigurationQueryInput): ProductTestConfigurationQueryResponse
+    QueryMySQLMGR: [ResponseMGRStatus]
+}
+#
+#    UpdateMacAddress(input: MacUpgradeInput!): ResponseModel!
+#    DeleteMacAddress(input: MacDeleteInput!): ResponseModel!
+#    DeleteTestConfiguration(input: TestConfigurationDeleteInput!): ResponseModel!
+
+#    UpdateTestConfigurationStatus(input: TestConfigurationStatusUpdateInput!): ResponseModel!
+
+
+type Mutation {
+    CreateMacAddress(input: MacCreationInput!): ResponseModel!
+
+
+    CreateProductDevice(input: ProductDeviceCreationInput!): ResponseModel!
+    UpdateProductDevice(input: ProductDeviceUpgradeInput!): ResponseModel!
+    DeleteProductDevice(input: ProductDeviceDeleteInput!): ResponseModel!
+
+    CreateProductFamily(input: ProductFamilyCreationInput!): ResponseModel!
+    UpdateProductFamily(input: ProductFamilyUpgradeInput!): ResponseModel!
+    DeleteProductFamily(input: ProductFamilyDeleteInput!): ResponseModel!
+
+    CreateCustomer(input: CustomerCreationInput!): ResponseModel!
+    UpdateCustomer(input: CustomerUpgradeInput!): ResponseModel!
+    DeleteCustomer(input: CustomerDeleteInput!): ResponseModel!
+
+    CreateSoftware(input: SoftwareCreationInput!): ResponseModel!
+    DeleteSoftware(input: SoftwareDeleteInput!): ResponseModel!
+
+    CreateFirmware(file: Upload,  input: FirmwareCreationInput!): ResponseModel!
+    DeleteFirmware(input: FirmwareDeleteInput!): ResponseModel!
+
+    CreateDutDevice(input: DutDeviceCreationInput!): ResponseModel!
+    UpdateDutDevice(input: DutDeviceUpgradeInput!): ResponseModel!
+    DeleteDutDevice(input: DutDeviceDeleteInput!): ResponseModel!
+
+    CreateTestConfiguration(input: TestConfigurationCreationInput!): ResponseCreateTestConfigurationModel!
+    UpdateTestConfiguration(input: TestConfigurationUpgradeInput!): ResponseModel!
+
+    DispatchMac(input: MacDispatchInput!): ResponseMacModel!
+    UpdateDispatchMacStatus(input: MacDispatchUpdateStatusInput!): ResponseModel!
+
+    SyncMACResult(file: Upload,  input: SyncIput!): ResponseTotalModel!
+
+    SyncMACResultWithoutLog(input: SyncIput!): ResponseTotalModel!
+
+    CreateProductTestConfiguration(input: Product_TestConfigurationCreationInput!): ResponseCreateTestConfigurationModel!
+    UpdateProductTestConfiguration(input: Product_TestConfigurationUpgradeInput!): ResponseModel!
+#
+    DispatchProductMac(input: MacDispatchInput!): ResponseMacModel!
+#    UpdateDispatchProductMacStatus(input: Product_MacDispatchUpdateStatusInput!): ResponseModel!
+#
+#    SyncProductMACResult(file: Upload,  input: SyncIput!): ResponseTotalModel!
+#
+    SyncProductMACResultWithoutLog(input: SyncIput!): ResponseTotalModel!
+
+#    doing
+    SyncPo(input: SyncPoInput!): ResponseModel!
+#create mac xml
+    CreateMacXLM(input: MacXMLCreate!): ResponseModel!
+
+    Upload_MAC_XML(file: Upload,  input: SyncIput!): ResponseModel!
+
+    MYSQL_MGR_Force_Single_Member_For_This_Host: [ResponseMGRStatus]!
+}
+
+input PingInput{
+    pcName: String!
+}
+
+type ResponseModel{
+    Result: Boolean!
+}
+
+type ResponseLotCodeModel{
+    LotCode: String!
+}
+
+type ResponseMacModel{
+    Result: Boolean!
+    IsNoMac: Boolean!
+    IsFinish: Boolean!
+    Mac: String!
+    Name: String!
+    SipLicense: String
+}
+
+type ResponseCreateTestConfigurationModel{
+    Result: Boolean!
+    CurrentStatus: String!
+    SwName: String!
+    SwVersion: String!
+    FwName: String!
+    FwVersion: String!
+}
+
+type ResponseTotalModel{
+    Total: Int!
+    Fail: Int!
+    Pass: Int!
+    Unused: Int!
+    Using: Int!
+    LastMac: String
+    LastMacName: String
+    TrayName: String
+    TrayX: Int
+    TrayY: Int
+}
+
+type ResponseMGRStatus{
+    CHANNEL_NAME: String
+    MEMBER_ID: String
+    MEMBER_HOST: String
+    MEMBER_PORT: String
+    MEMBER_STATE: String
+    MEMBER_ROLE: String
+    MEMBER_VERSION: String
+}
+
+input MGRIPInput{
+    ip: String!
+}

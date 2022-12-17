@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.SoftwareMapper">
+
+    <resultMap id="UserResultMap" type="User">
+        <result property="ID" column="U_ID"/>
+        <result property="EmployeeID" column="U_EmployeeID"/>
+        <result property="RealName" column="U_RealName"/>
+        <result property="NickName" column="U_NickName"/>
+        <result property="EMail" column="U_EMail"/>
+        <result property="Phone" column="U_Phone"/>
+    </resultMap>
+
+    <resultMap id="SoftwareResultMap" type="Software">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Version" column="Version"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="CreatedOwner" resultMap="UserResultMap"/>
+    </resultMap>
+
+
+    <resultMap id="SoftwareVersionResultMap" type="SoftwareVersion">
+        <result property="ID" column="SV_ID"/>
+        <result property="Version" column="SV_Version"/>
+        <result property="CreatedTime" column="SV_CreatedTime"/>
+        <association property="CreatedOwner" resultMap="UserResultMap"/>
+    </resultMap>
+
+    <resultMap id="SoftwareInfoResultMap" type="SoftwareInfo">
+        <result property="Name" column="Name"/>
+        <collection property="Versions" resultMap="SoftwareVersionResultMap"/>
+    </resultMap>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Software">
+        INSERT INTO software (Name, Version, CreatedOwner_ID)
+        SELECT
+        #{Name, jdbcType=VARCHAR},
+        #{Version, jdbcType=VARCHAR},
+        (SELECT ID FROM user WHERE EmployeeID=#{CreatedOwner.EmployeeID})
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM software WHERE Name = #{Name, jdbcType=VARCHAR} and Version = #{Version, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="SoftwareResultMap">
+        select
+        s.ID as ID,
+        s.Name as Name,
+        s.Version as Version,
+        s.CreatedTime as CreatedTime,
+        u.ID as U_ID,
+        u.EmployeeID as U_EmployeeID,
+        u.RealName as U_RealName,
+        u.NickName as U_NickName,
+        u.EMail as U_EMail,
+        u.Phone as U_Phone
+        from software s
+        left join user u ON u.ID=s.CreatedOwner_ID
+    </select>
+
+    <select id="getAllInfo" resultMap="SoftwareInfoResultMap">
+        select
+        s.ID as SV_ID,
+        s.Name as Name,
+        s.Version as SV_Version,
+        s.CreatedTime as SV_CreatedTime,
+        u.ID as U_ID,
+        u.EmployeeID as U_EmployeeID,
+        u.RealName as U_RealName,
+        u.NickName as U_NickName,
+        u.EMail as U_EMail,
+        u.Phone as U_Phone
+        from software s
+        left join user u ON u.ID=s.CreatedOwner_ID
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from software
+    </select>
+
+    <select id="getCountByNameAndVersoin" resultType="int">
+        select count(*) from software where Name = (#{name}) AND Version = (#{version})
+    </select>
+
+    <select id="getByName" resultType="com.asecl.simdc.org.simdc_project.db.entity.Software">
+        select * from software where Name = (#{name}) LIMIT 1
+    </select>
+
+    <select id="getCountByNameInTestconfiguration" resultType="int">
+        select count(SW_ID) from testconfiguration where SW_ID=(select ID from software where Name=(#{name}) and Version=(#{version}))
+    </select>
+
+    <select id="getByNameAndVersion" resultType="com.asecl.simdc.org.simdc_project.db.entity.Software">
+        select * from software where Name = (#{name}) and Version = (#{version}) LIMIT 1
+    </select>
+
+
+    <select id="get" resultMap="SoftwareInfoResultMap">
+        select
+        s.ID as SV_ID,
+        s.Name as Name,
+        s.Version as SV_Version,
+        s.CreatedTime as SV_CreatedTime,
+        u.ID as U_ID,
+        u.EmployeeID as U_EmployeeID,
+        u.RealName as U_RealName,
+        u.NickName as U_NickName,
+        u.EMail as U_EMail,
+        u.Phone as U_Phone
+        from software s
+        left join user u ON u.ID=s.CreatedOwner_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+
+            <if test="version != null and version.length()>0">
+                AND s.Version = (#{version})
+            </if>
+
+            <if test="name != null and name.length()>0">
+                AND s.Name LIKE CONCAT('%', (#{name}),'%')
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND u.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND s.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND s.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <update id="updateData" >
+        update software
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.name != null and input.name.length() > 0">Name = (#{input.name}),</if>
+            <if test="input.version !=null and input.version.length() > 0">Version = (#{input.version}),</if>
+        </trim>
+        <where>ID = #{id}</where>
+    </update>
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Software">
+        update software
+        <trim prefix="set" suffixOverrides=",">
+            <if test="Version != null">Version= #{Version},</if>
+        </trim>
+        <where> Name= #{Name}</where>
+    </update>
+
+    <delete id="deleteByID" >
+        delete from software where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByNameAndVersion" >
+        delete from software where Name=(#{name}) and Version=(#{version})
+    </delete>
+</mapper>

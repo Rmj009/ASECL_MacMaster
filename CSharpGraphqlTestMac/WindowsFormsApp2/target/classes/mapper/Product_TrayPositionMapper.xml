@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_TrayPositionMapper">
+
+    <resultMap id="TrayCountMap" type="TrayCount" >
+        <result property="TrayName" column="TrayName"/>
+        <result property="TrayId" column="TrayId"/>
+        <result property="OneTrayWidth" column="OneTrayWidth"/>
+        <result property="OneTrayHeight" column="OneTrayHeight"/>
+        <result property="LastX" column="LastX"/>
+        <result property="LastY" column="LastY"/>
+    </resultMap>
+
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_TrayPosition">
+        INSERT INTO Product_trayposition (Product_TestConfiguration_ID, Product_MacAddress_ResultBinding_ID, Product_Tray_ID, X, Y, MatrixIndex, ErrorCode)
+        SELECT
+        #{Product_TestConfiguration.ID},
+        #{Product_MacAddress_ResultBinding.ID},
+        #{Product_Tray.ID},
+        #{X},
+        #{Y},
+        #{MatrixIndex},
+        #{ErrorCode}
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM Product_trayposition WHERE
+          Product_TestConfiguration_ID = #{Product_TestConfiguration.ID} and Product_MacAddress_ResultBinding_ID = #{Product_MacAddress_ResultBinding.ID}
+          and Product_Tray_ID=#{Product_Tray.ID} and MatrixIndex=#{MatrixIndex}
+        )
+    </insert>
+
+    <!--    <select id="getAll" resultType="com.asecl.simdc.org.simdc_project.db.entity.Role">-->
+    <!--        select * from tray-->
+    <!--    </select>-->
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from Product_tray
+    </select>
+
+    <select id="getLastXYByTypeIdAndCfgId" resultMap="TrayCountMap">
+        select
+        tr.Name as TrayName,
+        tr.ID as TrayId,
+        tr.Width as OneTrayWidth,
+        tr.Height as OneTrayHeight,
+        max(tp.MatrixIndex) as LastMatrix
+        from Product_tray tr
+        left join Product_trayposition tp on tr.ID = tp.Product_Tray_ID
+        left join Product_testconfiguration tcf on tcf.ID = tr.Product_TestConfiguration_ID
+        where tr.Product_TestConfiguration_ID = #{cfgId} and tr.TrayType_ID = #{typeId}
+        and (tp.MatrixIndex is null or tp.MatrixIndex <![CDATA[ <= ]]> (tr.Width * tr.Height - 1))
+        group by tr.Name order by tr.`TOrder` asc
+    </select>
+
+</mapper>

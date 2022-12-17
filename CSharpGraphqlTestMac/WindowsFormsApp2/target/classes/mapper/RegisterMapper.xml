@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.RegisterMapper">
+
+    <resultMap id="RegisterRoleMap" type="Role" >
+        <id property="ID" column="R_ID"/>
+        <result property="Name" column="R_name"/>
+        <result property="CreatedTime" column="R_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="RegisterUserMap" type="User">
+        <result property="ID" column="A_ID"/>
+        <result property="EmployeeID" column="A_EmployeeID"/>
+        <result property="RealName" column="A_RealName"/>
+        <result property="NickName" column="A_NickName"/>
+        <result property="EMail" column="A_EMail"/>
+        <result property="Phone" column="A_Phone"/>
+        <association property="Role" resultMap="RegisterRoleMap"/>
+    </resultMap>
+
+    <resultMap id="RegisterTypeMap" type="RegisterType">
+        <result property="ID" column="T_ID"/>
+        <result property="Name" column="T_Name"/>
+        <result property="CreatedTime" column="T_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="RegisterMap" type="Register">
+        <result property="ID" column="ID"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="RegisterUser" resultMap="RegisterUserMap"/>
+        <association property="RegisterType" resultMap="RegisterType"/>
+    </resultMap>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Register">
+        INSERT INTO register (RegisterUser_ID, RegisterType_ID)
+        SELECT
+        (SELECT ID FROM user WHERE ID=#{RegisterUser.ID}),
+        (SELECT ID FROM registertype WHERE ID=#{RegisterType.ID})
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM register WHERE RegisterUser_ID = #{RegisterUser.ID}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="RegisterMap">
+        SELECT
+        r.ID as ID,
+        u.ID as A_ID,
+        u.EmployeeID as A_EmployeeID,
+        u.RealName as A_RealName,
+        u.NickName as A_NickName,
+        u.EMail as A_EMail,
+        u.Phone as A_Phone,
+        aR.ID as R_ID,
+        aR.Name as R_Name,
+        aR.CreatedTime as R_CreatedTime,
+        t.ID as T_ID,
+        t.Name as T_Name,
+        t.CreatedTime as T_CreatedTime
+        FROM register r LEFT JOIN user u ON u.ID=r.RegisterUser_ID
+        LEFT JOIN registertype t ON t.ID=r.RegisterType_ID
+        LEFT JOIN role aR ON aR.ID = u.Role_ID
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from register
+    </select>
+
+    <select id="getByRegisterEMail" resultMap="RegisterMap">
+        SELECT
+        r.ID as ID,
+        u.ID as A_ID,
+        u.EmployeeID as A_EmployeeID,
+        u.RealName as A_RealName,
+        u.NickName as A_NickName,
+        u.EMail as A_EMail,
+        u.Phone as A_Phone,
+        aR.ID as R_ID,
+        aR.Name as R_Name,
+        aR.CreatedTime as R_CreatedTime,
+        t.ID as T_ID,
+        t.Name as T_Name,
+        t.CreatedTime as T_CreatedTime
+        FROM register r LEFT JOIN user u ON u.ID=r.RegisterUser_ID
+        LEFT JOIN registertype t ON t.ID=r.RegisterType_ID
+        LEFT JOIN role aR ON aR.ID = u.Role_ID
+        WHERE u.Email = {#email}
+    </select>
+
+    <select id="getByRegisterEmployeeID" resultMap="RegisterMap">
+        SELECT
+        r.ID as ID,
+        u.ID as A_ID,
+        u.EmployeeID as A_EmployeeID,
+        u.RealName as A_RealName,
+        u.NickName as A_NickName,
+        u.EMail as A_EMail,
+        u.Phone as A_Phone,
+        aR.ID as R_ID,
+        aR.Name as R_Name,
+        aR.CreatedTime as R_CreatedTime,
+        t.ID as T_ID,
+        t.Name as T_Name,
+        t.CreatedTime as T_CreatedTime
+        FROM register r LEFT JOIN user u ON u.ID=r.RegisterUser_ID
+        LEFT JOIN registertype t ON t.ID=r.RegisterType_ID
+        LEFT JOIN role aR ON aR.ID = u.Role_ID
+        WHERE u.EmployeeID = {#employeeID}
+    </select>
+
+    <delete id="deleteByID" >
+        delete from register where ID=(#{id})
+    </delete>
+<!--    -->
+</mapper>

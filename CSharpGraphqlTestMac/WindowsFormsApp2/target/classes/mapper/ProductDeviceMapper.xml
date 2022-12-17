@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.ProductDeviceMapper">
+
+    <resultMap id="CreatedOwnerResult" type="User">
+        <result property="ID" column="CO_ID"/>
+        <result property="EmployeeID" column="CO_EmployeeID"/>
+        <result property="RealName" column="CO_RealName"/>
+        <result property="NickName" column="CO_NickName"/>
+        <result property="EMail" column="CO_EMail"/>
+        <result property="Phone" column="CO_Phone"/>
+    </resultMap>
+
+    <resultMap id="ProductFamilyResult" type="ProductFamily">
+        <result property="ID" column="F_ID"/>
+        <result property="Name" column="F_Name"/>
+        <result property="Remark" column="F_Remark"/>
+    </resultMap>
+
+    <resultMap id="ProductDeviceResult" type="ProductDevice">
+        <result property="ID" column="ID"/>
+        <result property="Name" column="Name"/>
+        <result property="Remark" column="Remark"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <association property="ProductFamily" resultMap="ProductFamilyResult"/>
+        <association property="CreatedOwner" resultMap="CreatedOwnerResult"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.ProductDevice">
+        INSERT INTO productdevice (Name,Remark,CreatedOwner_ID, Product_Family_ID)
+        SELECT
+        #{Name, jdbcType=VARCHAR},
+        #{Remark, jdbcType=VARCHAR},
+        (SELECT ID FROM user WHERE EmployeeID=#{CreatedOwner.EmployeeID}),
+        (SELECT ID FROM product_family WHERE Name=#{ProductFamily.Name})
+        FROM DUAL WHERE NOT EXISTS (
+          SELECT 1 FROM productdevice WHERE Name = #{Name, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getAll" resultMap="ProductDeviceResult">
+        select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l left join user u ON l.CreatedOwner_ID=u.ID
+        left join product_family pf ON l.Product_Family_ID=pf.ID
+    </select>
+
+    <select id="get" resultMap="ProductDeviceResult">
+    select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l inner join user u ON l.CreatedOwner_ID=u.ID
+        inner join product_family pf ON l.Product_Family_ID=pf.ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+            <if test="familyName != null and familyName.length()>0">
+                AND pf.Name = (#{familyName})
+            </if>
+
+            <if test="name != null and name.length()>0">
+                AND l.Name LIKE CONCAT('%', (#{name}),'%')
+            </if>
+
+            <if test="ownerEmplayeeId != null and ownerEmplayeeId.length()>0">
+                AND u.EmployeeID = (#{ownerEmplayeeId})
+            </if>
+
+            <if test="startTime != null and endTime != null">
+                AND l.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND l.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+
+        </trim>
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from productdevice
+    </select>
+
+    <select id="getCountByName" resultType="int">
+        select count(*) from productdevice where Name = (#{Name}) and Product_Family_ID = (#{FamilyID})
+    </select>
+
+    <select id="getByName" resultType="com.asecl.simdc.org.simdc_project.db.entity.ProductDevice">
+    select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l left join user u ON l.CreatedOwner_ID=u.ID
+        left join product_family pf ON l.Product_Family_ID=pf.ID
+        where l.Name = (#{Name}) and l.Product_Family_ID = (#{FamilyID}) LIMIT 1
+    </select>
+
+    <select id="getByLotName" resultType="com.asecl.simdc.org.simdc_project.db.entity.ProductDevice">
+    select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l left join user u ON l.CreatedOwner_ID=u.ID
+        left join product_family pf ON l.Product_Family_ID=pf.ID
+        where l.Name = (#{Name}) LIMIT 1
+    </select>
+
+
+    <select id="getByNameStr" resultMap="ProductDeviceResult">
+        select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l left join user u ON l.CreatedOwner_ID=u.ID
+        left join product_family pf ON l.Product_Family_ID=pf.ID
+        where l.Name = (#{Name}) and pf.Name = (#{Family}) LIMIT 1
+    </select>
+
+    <select id="getByProductDeviceName" resultMap="ProductDeviceResult">
+        select
+        l.ID as ID,
+        l.Name as Name,
+        l.Remark as Remark,
+        l.CreatedTime as CreatedTime,
+        u.ID as CO_ID,
+        u.EmployeeID as CO_EmployeeID,
+        u.RealName as CO_RealName,
+        u.NickName as CO_NickName,
+        u.EMail as CO_EMail,
+        u.Phone as CO_Phone,
+        pf.ID as F_ID,
+        pf.Name as F_Name,
+        pf.Remark as F_Remark
+        from  productdevice l left join user u ON l.CreatedOwner_ID=u.ID
+        left join product_family pf ON l.Product_Family_ID=pf.ID
+        where l.Name = (#{Name}) LIMIT 1
+    </select>
+
+
+    <update id="update" parameterType="com.asecl.simdc.org.simdc_project.db.entity.ProductDevice">
+        update productdevice set
+        Name = (#{Name}) ,
+        Remark = (#{Remark}) ,
+        CreatedOwner_ID = (SELECT ID FROM user WHERE EmployeeID=#{CreatedOwner.EmployeeID}) where ID = (#{ID})
+    </update>
+
+    <update id="updateData">
+        update productdevice
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input.name != null and input.name.length() > 0">Name= #{input.name},</if>
+            <if test="input.remark != null and input.remark.length() > 0">Remark= #{input.remark},</if>
+            <if test="newFamilyID >= 0">Product_Family_ID= #{newFamilyID},</if>
+        </trim>
+        <where>ID = #{id} and Product_Family_ID = #{familyID}</where>
+    </update>
+
+    <delete id="deleteByID" >
+        delete from productdevice where ID=(#{id})
+    </delete>
+
+    <delete id="deleteByName" >
+        delete from productdevice where Name=(#{Name})
+    </delete>
+</mapper>

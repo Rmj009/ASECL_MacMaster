@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.MySQLMGRMapper">
+
+    <resultMap id="MGRResultMap" type="MySQLMGR">
+        <result property="CHANNEL_NAME" column="CHANNEL_NAME"/>
+        <result property="MEMBER_ID" column="MEMBER_ID"/>
+        <result property="MEMBER_HOST" column="MEMBER_HOST"/>
+        <result property="MEMBER_PORT" column="MEMBER_PORT"/>
+        <result property="MEMBER_STATE" column="MEMBER_STATE"/>
+        <result property="MEMBER_ROLE" column="MEMBER_ROLE"/>
+        <result property="MEMBER_VERSION" column="MEMBER_VERSION"/>
+    </resultMap>
+
+    <select id="getAll" resultMap="MGRResultMap">
+        select
+        CHANNEL_NAME as CHANNEL_NAME,
+        MEMBER_ID as MEMBER_ID,
+        MEMBER_HOST as MEMBER_HOST,
+        MEMBER_PORT as MEMBER_PORT,
+        MEMBER_STATE as MEMBER_STATE,
+        MEMBER_ROLE as MEMBER_ROLE,
+        MEMBER_VERSION as MEMBER_VERSION
+        from performance_schema.replication_group_members
+    </select>
+
+    <update id="replicationForceMember" parameterType="java.lang.String">
+        set global group_replication_force_members = #{member}
+    </update>
+
+
+</mapper>

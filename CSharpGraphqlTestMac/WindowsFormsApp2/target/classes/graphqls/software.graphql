@@ -1,0 +1,48 @@
+
+type Software{
+    ID: Int!
+    Name: String!
+    Version: String!
+    CreatedTime: Timestamp
+    CreatedOwner: User
+}
+
+input SoftwareCreationInput{
+    name: String!
+    version: String!
+    ownerEmplayeeId: String!
+}
+
+input SoftwareUpgradeInput{
+    originName: String!
+    name: String
+    originVersion: String!
+    version: String
+}
+
+input SoftwareDeleteInput{
+    name: String!
+    version: String!
+}
+
+input SoftwareQueryInput{
+    name: String
+    version: String
+    ownerEmplayeeId: String
+    startTime: Timestamp
+    endTime: Timestamp
+    pageNumber: Int = -1
+    pageSize: Int = -1
+}
+
+type SoftwareInfo{
+    Name: String!
+    Versions: [SoftwareVersion!]!
+}
+
+type SoftwareVersion{
+    ID: Int!
+    Version: String!
+    CreatedOwner: User!
+    CreatedTime: Timestamp!
+}

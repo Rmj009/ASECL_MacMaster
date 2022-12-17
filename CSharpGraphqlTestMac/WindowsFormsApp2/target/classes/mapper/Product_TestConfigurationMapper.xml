@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2019 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asecl.simdc.org.simdc_project.db.mapper.Product_TestConfigurationMapper">
+
+    <resultMap id="CustomerResultMap" type="Customer">
+        <result property="ID" column="C_ID"/>
+        <result property="Name" column="C_Name"/>
+        <result property="Phone" column="C_Phone"/>
+        <result property="Remark" column="C_Remark"/>
+        <result property="CreatedTime" column="C_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="SoftwareResultMap" type="Software">
+        <result property="ID" column="SW_ID"/>
+        <result property="Name" column="SW_Name"/>
+        <result property="Version" column="SW_Version"/>
+        <result property="CreatedTime" column="SW_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="FWResultMap" type="Firmware">
+        <result property="ID" column="FW_ID"/>
+        <result property="Name" column="FW_Name"/>
+        <result property="Version" column="FW_Version"/>
+        <result property="Path" column="FW_Path"/>
+        <result property="Remark" column="FW_Remark"/>
+        <result property="MD5" column="FW_MD5"/>
+        <result property="CreatedTime" column="FW_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="Product_TestConfiguration_SW_FW_Result" type="Product_TestConfiguration_SW_FW_Binding">
+        <result property="ID" column="SW_FW_ID"/>
+        <result property="IsActived" column="SW_FW_IsActived" />
+        <result property="CreatedTime" column="SW_FW_CreatedTime"/>
+        <association property="Software" resultMap="SoftwareResultMap"/>
+        <association property="Firmware" resultMap="FWResultMap"/>
+    </resultMap>
+
+<!--    <resultMap id="UserResultMap" type="User">-->
+<!--        <result property="ID" column="U_ID"/>-->
+<!--        <result property="EmployeeID" column="U_EmployeeID"/>-->
+<!--        <result property="RealName" column="U_RealName"/>-->
+<!--        <result property="NickName" column="U_NickName"/>-->
+<!--        <result property="EMail" column="U_EMail"/>-->
+<!--        <result property="Phone" column="U_Phone"/>-->
+<!--    </resultMap>-->
+
+
+<!--    <resultMap id="ForceUserResultMap" type="User">-->
+<!--        <result property="ID" column="F_ID"/>-->
+<!--        <result property="EmployeeID" column="F_EmployeeID"/>-->
+<!--        <result property="RealName" column="F_RealName"/>-->
+<!--        <result property="NickName" column="F_NickName"/>-->
+<!--        <result property="EMail" column="F_EMail"/>-->
+<!--        <result property="Phone" column="F_Phone"/>-->
+<!--    </resultMap>-->
+
+    <resultMap id="StatusResultMap" type="TestConfigurationStatus">
+        <result property="ID" column="TS_ID"/>
+        <result property="Name" column="TS_Name"/>
+        <result property="CreatedTime" column="TS_CreatedTime"/>
+    </resultMap>
+
+<!--    <resultMap id="MacDispatchTypeResultMap" type="MacDispatchType">-->
+<!--        <result property="ID" column="MD_ID"/>-->
+<!--        <result property="Name" column="MD_Name"/>-->
+<!--        <result property="CreatedTime" column="MD_CreatedTime"/>-->
+<!--    </resultMap>-->
+
+    <resultMap id="DeviceResultMap" type="DutDevice">
+        <result property="ID" column="DUT_ID"/>
+        <result property="GroupPC" column="DUT_GroupPC"/>
+        <result property="HostName" column="DUT_HostName"/>
+        <result property="ProductDevice" column="DUT_ProductDevice"/>
+        <result property="Remark" column="DUT_Remark"/>
+        <result property="CreatedTime" column="DUT_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="ProductDeviceResultMap" type="ProductDevice">
+        <result property="ID" column="P_ID"/>
+        <result property="Name" column="P_Name"/>
+        <result property="Remark" column="P_Remark"/>
+        <result property="CreatedTime" column="P_CreatedTime"/>
+        <association property="ProductFamily" resultMap="Product_Family_IDResultMap"/>
+    </resultMap>
+
+    <resultMap id="Product_Family_IDResultMap" type="ProductFamily">
+        <result property="ID" column="PF_ID"/>
+        <result property="Name" column="PF_Name"/>
+        <result property="Remark" column="PF_Remark"/>
+        <result property="CreatedTime" column="PF_CreatedTime"/>
+    </resultMap>
+
+    <resultMap id="TestConfigurationResult" type="Product_TestConfiguration">
+        <result property="ID" column="ID"/>
+        <result property="LotCode" column="LotCode"/>
+        <result property="PID" column="PID"/>
+        <result property="PO" column="PO"/>
+        <result property="ForceStopOPId" column="ForceStopOPId" />
+        <result property="ForceStopRemark" column="ForceStopRemark"/>
+        <result property="FinishDate" column="FinishDate"/>
+        <result property="CreatedTime" column="CreatedTime"/>
+        <result property="TrayMode" column="TrayMode" />
+        <result property="ExtraJson" column="ExtraJson" typeHandler="com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler" />
+        <result property="LogTitle" column="LogTitle" typeHandler="com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler" />
+        <result property="LogLimitUpper" column="LogLimitUpper" typeHandler="com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler" />
+        <result property="LogLimitLower" column="LogLimitLower" typeHandler="com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler" />
+        <association property="ProductDevice" resultMap="ProductDeviceResultMap"/>
+        <association property="FwSwBinding" resultMap="Product_TestConfiguration_SW_FW_Result" />
+        <association property="Status" resultMap="StatusResultMap"/>
+        <association property="Customer" resultMap="CustomerResultMap"/>
+        <collection property="DutDevices" resultMap="DeviceResultMap" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="ID" parameterType="com.asecl.simdc.org.simdc_project.db.entity.Product_TestConfiguration">
+        INSERT INTO product_testconfiguration (LotCode, TrayMode, PID, PO, ExtraJson, LogTitle, LogLimitUpper, LogLimitLower, Status_ID, ProductDevice_ID, Customer_ID, FinishDate)
+        SELECT
+        #{LotCode},
+        #{TrayMode},
+        #{PID},
+        #{PO},
+        #{ExtraJson, jdbcType=OTHER, typeHandler=com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler},
+        #{LogTitle, jdbcType=OTHER, typeHandler=com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler},
+        #{LogLimitUpper, jdbcType=OTHER, typeHandler=com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler},
+        #{LogLimitLower, jdbcType=OTHER, typeHandler=com.asecl.simdc.org.simdc_project.db.handler.MysqlJsonHandler},
+        (SELECT ID FROM TestConfigurationStatus WHERE Name=#{Status.Name}),
+        (SELECT ID FROM ProductDevice WHERE Name=#{ProductDevice.Name}),
+        (SELECT ID FROM customer WHERE Name=#{Customer.Name}),
+         #{FinishDate} FROM DUAL
+        WHERE NOT EXISTS (
+        SELECT 1 FROM product_testconfiguration WHERE LotCode = #{LotCode, jdbcType=VARCHAR} AND ProductDevice_ID = #{ProductDevice.ID}
+        )
+    </insert>
+
+    <select id="getByProductDeviceIdAndLotCode" resultMap="TestConfigurationResult">
+        select
+        tcf.ID as ID,
+        tcf.ExtraJson as ExtraJson,
+        tcf.LogTitle as LogTitle,
+        tcf.TrayMode as TrayMode,
+        tcf.PID as PID,
+        tcf.PO as PO,
+        tcf.LogLimitUpper as LogLimitUpper,
+        tcf.LogLimitLower as LogLimitLower,
+        tcf.LotCode as LotCode,
+        tcf.ForceStopOPId as ForceStopOPId,
+        tcf.ForceStopRemark as ForceStopRemark,
+        tcf.FinishDate as FinishDate,
+        tcf.CreatedTime as CreatedTime,
+        st.ID as TS_ID,
+        st.Name as TS_Name,
+        st.CreatedTime as TS_CreatedTime,
+        tb.ID as SW_FW_ID,
+        tb.IsActived as SW_FW_IsActived,
+        tb.CreatedTime as SW_FW_CreatedTime,
+        fw.ID as FW_ID,
+        fw.Name as FW_Name,
+        fw.Version as FW_Version,
+        sw.ID as SW_ID,
+        sw.Name as SW_Name,
+        sw.Version as SW_Version,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark,
+        p.CreatedTime as P_CreatedTime,
+        cu.ID as C_ID,
+        cu.Name as C_Name,
+        cu.Phone as C_Phone,
+        cu.Remark as C_Remark,
+        cu.CreatedTime as C_CreatedTime,
+        dut.ID as DUT_ID,
+        dut.GroupPC as DUT_GroupPC,
+        dut.HostName as DUT_HostName,
+        dut.ProductDevice as DUT_ProductDevice,
+        dut.Remark as DUT_Remark,
+        dut.CreatedTime as DUT_CreatedTime
+        from product_testconfiguration tcf
+        inner join TestConfigurationStatus st ON st.ID=tcf.Status_ID
+        left join ProductDevice p ON p.ID = tcf.ProductDevice_ID
+        left join product_testconfiguration_sw_fw_binding tb ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join Firmware fw ON fw.ID = tb.FW_ID
+        left join software sw ON sw.ID = tb.SW_ID
+        left join customer cu ON cu.ID = tcf.Customer_ID
+        left join product_TestConfiguration_DutBinding db ON tcf.ID = db.Product_TestConfiguration_ID
+        left join DutDevice dut ON dut.ID = db.DutDevice_ID
+        where tcf.LotCode = #{lotCode} and tb.IsActived = 1
+    </select>
+
+    <select id="getAll" resultMap="TestConfigurationResult">
+        select
+        tcf.ID as ID,
+        tcf.ExtraJson as ExtraJson,
+        tcf.LogTitle as LogTitle,
+        tcf.TrayMode as TrayMode,
+        tcf.PID as PID,
+        tcf.PO as PO,
+        tcf.LogLimitUpper as LogLimitUpper,
+        tcf.LogLimitLower as LogLimitLower,
+        tcf.LotCode as LotCode,
+        tcf.ForceStopOPId as ForceStopOPId,
+        tcf.ForceStopRemark as ForceStopRemark,
+        tcf.FinishDate as FinishDate,
+        tcf.CreatedTime as CreatedTime,
+        st.ID as TS_ID,
+        st.Name as TS_Name,
+        st.CreatedTime as TS_CreatedTime,
+        tb.ID as SW_FW_ID,
+        tb.IsActived as SW_FW_IsActived,
+        tb.CreatedTime as SW_FW_CreatedTime,
+        fw.ID as FW_ID,
+        fw.Name as FW_Name,
+        fw.Version as FW_Version,
+        sw.ID as SW_ID,
+        sw.Name as SW_Name,
+        sw.Version as SW_Version,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark,
+        p.CreatedTime as P_CreatedTime,
+        cu.ID as C_ID,
+        cu.Name as C_Name,
+        cu.Phone as C_Phone,
+        cu.Remark as C_Remark,
+        cu.CreatedTime as C_CreatedTime,
+        dut.ID as DUT_ID,
+        dut.GroupPC as DUT_GroupPC,
+        dut.HostName as DUT_HostName,
+        dut.ProductDevice as DUT_ProductDevice,
+        dut.Remark as DUT_Remark,
+        dut.CreatedTime as DUT_CreatedTime
+        from product_testconfiguration tcf
+        inner join TestConfigurationStatus st ON st.ID=tcf.Status_ID
+        left join ProductDevice p ON p.ID = tcf.ProductDevice_ID
+        left join product_testconfiguration_sw_fw_binding tb ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join Firmware fw ON fw.ID = tb.FW_ID
+        left join software sw ON sw.ID = tb.SW_ID
+        left join customer cu ON cu.ID = tcf.Customer_ID
+        left join product_TestConfiguration_DutBinding db ON tcf.ID = db.Product_TestConfiguration_ID
+        left join DutDevice dut ON dut.ID = db.DutDevice_ID
+        where tb.IsActived = 1
+    </select>
+
+    <select id="get" resultMap="TestConfigurationResult">
+        select
+        tcf.ID as ID,
+        tcf.ExtraJson as ExtraJson,
+        tcf.LogTitle as LogTitle,
+        tcf.TrayMode as TrayMode,
+        tcf.PID as PID,
+        tcf.PO as PO,
+        tcf.LogLimitUpper as LogLimitUpper,
+        tcf.LogLimitLower as LogLimitLower,
+        tcf.LotCode as LotCode,
+        tcf.ForceStopOPId as ForceStopOPId,
+        tcf.ForceStopRemark as ForceStopRemark,
+        tcf.FinishDate as FinishDate,
+        tcf.CreatedTime as CreatedTime,
+        st.ID as TS_ID,
+        st.Name as TS_Name,
+        st.CreatedTime as TS_CreatedTime,
+        tb.ID as SW_FW_ID,
+        tb.IsActived as SW_FW_IsActived,
+        tb.CreatedTime as SW_FW_CreatedTime,
+        fw.ID as FW_ID,
+        fw.Name as FW_Name,
+        fw.Version as FW_Version,
+        sw.ID as SW_ID,
+        sw.Name as SW_Name,
+        sw.Version as SW_Version,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark,
+        p.CreatedTime as P_CreatedTime,
+        cu.ID as C_ID,
+        cu.Name as C_Name,
+        cu.Phone as C_Phone,
+        cu.Remark as C_Remark,
+        cu.CreatedTime as C_CreatedTime,
+        dut.ID as DUT_ID,
+        dut.GroupPC as DUT_GroupPC,
+        dut.HostName as DUT_HostName,
+        dut.ProductDevice as DUT_ProductDevice,
+        dut.Remark as DUT_Remark,
+        dut.CreatedTime as DUT_CreatedTime
+        from product_testconfiguration tcf
+        inner join TestConfigurationStatus st ON st.ID=tcf.Status_ID
+        left join ProductDevice p ON p.ID = tcf.ProductDevice_ID
+        left join product_testconfiguration_sw_fw_binding tb ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join Firmware fw ON fw.ID = tb.FW_ID
+        left join software sw ON sw.ID = tb.SW_ID
+        left join customer cu ON cu.ID = tcf.Customer_ID
+        left join product_TestConfiguration_DutBinding db ON tcf.ID = db.Product_TestConfiguration_ID
+        left join DutDevice dut ON dut.ID = db.DutDevice_ID
+        <trim prefix="WHERE" prefixOverrides="And|OR">
+            <if test="lotcode != null and lotcode.length()>0">
+                AND tcf.LotCode = (#{lotcode})
+            </if>
+            AND tb.IsActived = 1
+            <if test="startTime != null and endTime != null">
+                AND tcf.CreatedTime <![CDATA[ >= ]]> (#{startTime}) AND tcf.CreatedTime <![CDATA[ <= ]]> (#{endTime})
+            </if>
+        </trim>
+    </select>
+
+    <select id="getByLotCode" resultMap="TestConfigurationResult">
+        select
+        tcf.ID as ID,
+        tcf.ExtraJson as ExtraJson,
+        tcf.TrayMode as TrayMode,
+        tcf.LogTitle as LogTitle,
+        tcf.LogLimitUpper as LogLimitUpper,
+        tcf.LogLimitLower as LogLimitLower,
+        tcf.LotCode as LotCode,
+        tcf.PID as PID,
+        tcf.ForceStopOPId as ForceStopOPId,
+        tcf.ForceStopRemark as ForceStopRemark,
+        tcf.FinishDate as FinishDate,
+        tcf.CreatedTime as CreatedTime,
+        st.ID as TS_ID,
+        st.Name as TS_Name,
+        st.CreatedTime as TS_CreatedTime,
+        tb.ID as SW_FW_ID,
+        tb.IsActived as SW_FW_IsActived,
+        tb.CreatedTime as SW_FW_CreatedTime,
+        fw.ID as FW_ID,
+        fw.Name as FW_Name,
+        fw.Version as FW_Version,
+        fw.Path as FW_Path,
+        fw.Remark as FW_Remark,
+        fw.MD5 as FW_MD5,
+        fw.CreatedTime as FW_CreatedTime,
+        sw.ID as SW_ID,
+        sw.Name as SW_Name,
+        sw.Version as SW_Version,
+        sw.CreatedTime as SW_CreatedTime,
+        p.ID as P_ID,
+        p.Name as P_Name,
+        p.Remark as P_Remark,
+        p.CreatedTime as P_CreatedTime,
+        cu.ID as C_ID,
+        cu.Name as C_Name,
+        cu.Phone as C_Phone,
+        cu.Remark as C_Remark,
+        cu.CreatedTime as C_CreatedTime,
+        dut.ID as DUT_ID,
+        dut.GroupPC as DUT_GroupPC,
+        dut.HostName as DUT_HostName,
+        dut.ProductDevice as DUT_ProductDevice,
+        dut.Remark as DUT_Remark,
+        dut.CreatedTime as DUT_CreatedTime
+        from product_testconfiguration tcf
+        inner join TestConfigurationStatus st ON st.ID=tcf.Status_ID
+        left join ProductDevice p ON p.ID = tcf.ProductDevice_ID
+        left join Product_testconfiguration_sw_fw_binding tb ON tcf.ID=tb.Product_TestConfiguration_ID
+        left join Firmware fw ON fw.ID = tb.FW_ID
+        left join software sw ON sw.ID = tb.SW_ID
+        left join customer cu ON cu.ID = tcf.Customer_ID
+        left join Product_TestConfiguration_DutBinding db ON tcf.ID = db.Product_TestConfiguration_ID
+        left join DutDevice dut ON dut.ID = db.DutDevice_ID
+        WHERE tcf.LotCode = (#{lotcode})
+    </select>
+
+    <select id="getProductFamilyByLotCode" resultType="java.lang.String">
+        SELECT pf.Name FROM asecl_simdc_server.product_testconfiguration as tcf
+        inner join asecl_simdc_server.productdevice as pd on tcf.ProductDevice_ID = pd.ID
+        inner join asecl_simdc_server.product_family as pf on pd.Product_Family_ID = pf.ID
+        where tcf.LotCode = #{lotcode}
+    </select>
+
+    <select id="getProductDeviceByLotCode" resultType="java.lang.String">
+        SELECT pd.Name FROM asecl_simdc_server.product_testconfiguration as tcf
+        inner join asecl_simdc_server.productdevice as pd on tcf.ProductDevice_ID = pd.ID
+        where tcf.LotCode = #{lotcode}
+    </select>
+</mapper>
