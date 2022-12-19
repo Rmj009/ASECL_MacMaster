@@ -103,6 +103,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exception\graphQLexception.cs" />
+    <Compile Include="gRPC\gRPCtestService.cs" />
     <Compile Include="HTTP\CreateTestConfigurationResponse.cs" />
     <Compile Include="HTTP\DispatchMacResponse.cs" />
     <Compile Include="HTTP\DispatchProductMacResponse.cs" />
