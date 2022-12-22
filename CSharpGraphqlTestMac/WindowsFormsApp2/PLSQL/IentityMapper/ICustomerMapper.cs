@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MacMaster.PLSQL.IentityMapper
 {
-    //public interface ICustomerMapper : BaseMapper<Customer>
-    //{
-    //    Customer GetByName(String name);
+    public interface CustomerMapper : BaseMapper<Task>
+    {
+        CustomerMapper GetByName(String name);
 
-    //}
+    }
 }
