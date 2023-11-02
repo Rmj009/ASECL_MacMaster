@@ -120,13 +120,17 @@
     <Compile Include="HTTP\ProductUploadResponse.cs" />
     <Compile Include="LCS5\ConnectInterface.cs" />
     <Compile Include="LCS5\CsvBase.cs" />
+    <Compile Include="LCS5\DataSystem.cs" />
     <Compile Include="LCS5\eventHandle.cs" />
     <Compile Include="LCS5\frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="LCS5\frmMain.Designer.cs" />
+    <Compile Include="LCS5\HQTestOnly.cs" />
+    <Compile Include="LCS5\Litepoint.cs" />
     <Compile Include="LCS5\PS_3323.cs" />
     <Compile Include="LCS5\PS_3615.cs" />
+    <Compile Include="LCS5\SFCSQuery.cs" />
     <Compile Include="LCS5\Telents.cs" />
     <Compile Include="LCS5\WifiCollection.cs" />
     <Compile Include="LCS5\WifiObjects.cs" />
